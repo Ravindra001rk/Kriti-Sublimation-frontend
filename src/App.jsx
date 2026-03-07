@@ -8,6 +8,8 @@ import About from "./Pages/About";
 import SmoothScroll from "./Components/SmoothScroll";
 import Navbar from "./Components/Navbar";
 import ScrollToTop from "./Components/Home/ScrollToTop";
+import PhotoGallery from "./Pages/PhotoGallery";
+import AdminPanel from "./Pages/AdminPanel";
 
 const App = () => {
   return (
@@ -16,6 +18,8 @@ const App = () => {
       <SmoothScroll>
         <ScrollToTop />
         <Routes>
+          <Route path="/admin" element={<AdminPanel />} />
+          <Route path="/photos/:phone" element={<PhotoGallery />} />
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
           <Route path="/contact" element={<Contact />} />

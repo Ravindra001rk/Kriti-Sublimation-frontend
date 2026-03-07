@@ -37,8 +37,8 @@ const HeroSection = () => {
                   x2="100%"
                   y2="0%"
                 >
-                  <stop offset="0%" stopColor="#FF0000" /> {/* Red */}
-                  <stop offset="100%" stopColor="#FFA500" /> {/* Orange */}
+                  <stop offset="0%" stopColor="#FE6E4D" />
+                  <stop offset="100%" stopColor="#CC1267" />
                 </linearGradient>
               </defs>
 
@@ -65,7 +65,7 @@ const HeroSection = () => {
           {/* Pill container with accent left bar */}
           <div className="relative flex items-center">
             {/* Yellow accent bar on left */}
-            <span className="absolute -left-4 top-1/2 bg-gradient-to-r from-[#FF0000]  to-[#FFA500] -translate-y-1/2 w-1.5 h-8 rounded-full" />
+            <span className="absolute -left-4 top-1/2 bg-gradient-to-br from-[#FE6E4D] to-[#CC1267] -translate-y-1/2 w-1.5 h-8 rounded-full" />
 
             <FlipWords
               words={[
@@ -86,7 +86,7 @@ const HeroSection = () => {
 
           {/* Subtle animated underline */}
           <motion.div
-            className="h-0.5 bg-gradient-to-r from-[#FF0000]  to-[#FFA500] rounded-full"
+            className="h-0.5 bg-gradient-to-br from-[#FE6E4D] to-[#CC1267] rounded-full"
             initial={{ width: 0 }}
             animate={{ width: "100%" }}
             transition={{

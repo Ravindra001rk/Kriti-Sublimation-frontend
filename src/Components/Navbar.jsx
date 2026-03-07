@@ -9,7 +9,7 @@ import { IoMdHome } from "react-icons/io";
 import { IoMdContact } from "react-icons/io";
 import { IoCallSharp } from "react-icons/io5";
 import { FaBoxOpen } from "react-icons/fa";
-
+import { HiArrowUpRight } from "react-icons/hi2";
 const Navbar = () => {
   const [show, setShow] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -85,7 +85,7 @@ const Navbar = () => {
       {/* ✅ FIX 3: Moved overlay + panel OUTSIDE the navbar so they aren't clipped by it.
            This is the key reason the blur wasn't covering the full screen before. */}
       <div className="md:hidden">
-        {/* FULL SCREEN BLUR OVERLAY — now truly covers 100dvh */}
+        {/* FULL SCREEN BLUR OVERLAY */}
         <div
           onClick={() => setMobileMenuOpen(false)}
           className={`fixed inset-0 w-full h-full bg-black/40 backdrop-blur-md transition-opacity duration-300 ${
@@ -97,88 +97,98 @@ const Navbar = () => {
 
         {/* RIGHT SLIDE PANEL */}
         <div
-          className={`fixed top-0 right-0 w-[65vw] max-w-[490px] h-screen bg-brandBg shadow-2xl transform transition-transform duration-500 ease-[cubic-bezier(.77,0,.175,1)] z-[210] ${
-            mobileMenuOpen ? "translate-x-0" : "translate-x-full"
-          }`}
+          className={`fixed top-0 right-0 w-[72vw] max-w-[420px] h-dvh z-[210]
+            transform transition-transform duration-500 ease-[cubic-bezier(.77,0,.175,1)]
+            flex flex-col overflow-hidden
+            ${mobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}
+          style={{ background: "#FAFAF7" }}
         >
-          <div className="flex items-center justify-between px-6 py-5 border-b">
-            <NavLink
-                to="/"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-               <img src={logo} className="h-10"/>
-              </NavLink>
+          {/* Gradient accent bar */}
+          <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-[#FE6E4D] to-[#CC1267] z-10" />
+
+          {/* Header */}
+          <div className="flex-shrink-0 flex items-center justify-between px-7 pt-6 pb-5 border-b border-black/10">
+            <NavLink to="/" onClick={() => setMobileMenuOpen(false)}>
+              <img src={logo} className="h-9" alt="logo" />
+            </NavLink>
             <button
               onClick={() => setMobileMenuOpen(false)}
-              className="text-[#ff0c00] font-bold text-2xl rounded transition"
+              className="w-9 h-9 flex items-center justify-center border border-black/20 rounded-full
+                text-black hover:bg-gradient-to-br hover:from-[#FE6E4D] hover:to-[#CC1267] hover:text-white hover:border-transparent transition-all duration-200 text-base"
             >
               <VscChromeClose />
             </button>
           </div>
 
-          <div className="flex flex-col poppins justify-between px-4 py-8 h-[86vh]">
-            <div className="flex flex-col  space-y-6">
+          {/* Nav Links */}
+          <nav className="flex-1 flex flex-col px-7 pt-8 gap-1 overflow-y-auto min-h-0">
+            {[
+              { to: "/", label: "Home", num: "01" },
+              { to: "/products", label: "Products", num: "02" },
+              { to: "/about", label: "About", num: "03" },
+              { to: "/contact", label: "Contact", num: "04" },
+            ].map(({ to, label, num }) => (
               <NavLink
-                to="/"
+                key={to}
+                to={to}
                 onClick={() => setMobileMenuOpen(false)}
                 className={({ isActive }) =>
-                  `text-xl font-semibold flex items-center gap-1 ${
-                    isActive ? "text-orange-500" : "text-black"
-                  }`
+                  `group flex items-center justify-between py-4 border-b border-black/10
+                   transition-all duration-200 poppins
+                   ${isActive ? "text-black" : "text-zinc-600 hover:text-black"}`
                 }
               >
-                <IoMdHome /> Home
+                {({ isActive }) => (
+                  <>
+                    <div className="flex items-center gap-3">
+                      <span
+                        className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded transition-all duration-200"
+                        style={{
+                          background: isActive
+                            ? "linear-gradient(to bottom right, #FE6E4D, #CC1267)"
+                            : "transparent",
+                          border: "1px solid",
+                          borderColor: isActive
+                            ? "transparent"
+                            : "rgba(0,0,0,0.15)",
+                          color: isActive ? "white" : "rgba(0,0,0,0.4)",
+                        }}
+                      >
+                        {num}
+                      </span>
+                      <span className="text-xl font-semibold">{label}</span>
+                    </div>
+                    <HiArrowUpRight
+                      className={`text-sm transition-all duration-200 ${isActive ? "opacity-100" : "opacity-0 group-hover:opacity-60"}`}
+                      style={isActive ? { color: "#FE6E4D" } : {}}
+                    />
+                  </>
+                )}
               </NavLink>
+            ))}
 
-              <NavLink
-                to="/products"
-                onClick={() => setMobileMenuOpen(false)}
-                className={({ isActive }) =>
-                  `text-xl font-semibold flex items-center gap-1 ${
-                    isActive ? "text-orange-500" : "text-black"
-                  }`
-                }
-              >
-                <FaBoxOpen />
-                Products
-              </NavLink>
-
-              <NavLink
-                to="/about"
-                onClick={() => setMobileMenuOpen(false)}
-                className={({ isActive }) =>
-                  `text-xl font-semibold flex items-center gap-1 ${
-                    isActive ? "text-orange-500" : "text-black"
-                  }`
-                }
-              >
-                <IoMdContact />
-                About
-              </NavLink>
-
-              <NavLink
-                to="/contact"
-                onClick={() => setMobileMenuOpen(false)}
-                className={({ isActive }) =>
-                  `text-xl font-semibold flex items-center gap-1 ${
-                    isActive ? "text-orange-500" : "text-black"
-                  }`
-                }
-              >
-                <IoCallSharp />
-                Contact
-              </NavLink>
-
-              <div className="pt-1" onClick={() => setMobileMenuOpen(false)}>
-                <CTAButton />
-              </div>
+            <div className="pt-8" onClick={() => setMobileMenuOpen(false)}>
+              <CTAButton className="w-full justify-center" />
             </div>
-            <div className=" border-t">
-              <h1 className="text-gray-600">Birgunj-13, Nepal</h1>
-              <h1 className="whitespace-nowrap text-gray-600">
-                Fast • Affordable • Professional
-              </h1>
+          </nav>
+
+          {/* Footer */}
+          <div className="flex-shrink-0 px-7 py-5 border-t border-black/10">
+            <div className="flex items-center gap-2 mb-1">
+              <div
+                className="w-2 h-2 rounded-full"
+                style={{
+                  background:
+                    "linear-gradient(to bottom right, #FE6E4D, #CC1267)",
+                }}
+              />
+              <span className="text-xs font-semibold text-black/40 uppercase tracking-widest poppins">
+                Birgunj-13, Nepal
+              </span>
             </div>
+            <p className="text-[11px] text-black/30 tracking-wide poppins">
+              Fast • Affordable • Professional
+            </p>
           </div>
         </div>
       </div>

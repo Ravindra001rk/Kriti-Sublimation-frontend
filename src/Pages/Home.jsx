@@ -3,6 +3,7 @@ import HeroSection from "../Components/Home/HeroSection";
 import WhyChoose from "../Components/Home/WhyChoose";
 import FeatureProducts from "../Components/Home/FeatureProducts";
 import TwoDcard from "../Components/Home/TwoDcard";
+import StackTabScroll from "../Components/Stacktabscroll";
 
 const Home = () => {
   return (
@@ -10,7 +11,7 @@ const Home = () => {
       <HeroSection/>
       <WhyChoose/>
       <FeatureProducts/>
-      {/* <TwoDcard/> */}
+    <StackTabScroll/>
     </div>
   );
 };

@@ -1,21 +1,12 @@
 import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import React from "react";
-export default function CTAButton() {
+
+export default function CTAButton({ className = "" }) {
   const [hovered, setHovered] = useState(false);
   const [pressed, setPressed] = useState(false);
   const [ripple, setRipple] = useState(null);
   const btnRef = useRef(null);
-
-  const handleMouseDown = (e) => {
-    setPressed(true);
-    const rect = btnRef.current.getBoundingClientRect();
-    setRipple({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-      key: Date.now(),
-    });
-  };
 
   return (
     <Link to="gallery">
@@ -26,7 +17,6 @@ export default function CTAButton() {
           setHovered(false);
           setPressed(false);
         }}
-        onMouseDown={handleMouseDown}
         onMouseUp={() => setPressed(false)}
         className={`relative inline-flex items-center border-none bg-transparent p-0 outline-none transition-transform duration-150 w-full
         ${pressed ? "scale-95" : "scale-100"}`}
@@ -34,7 +24,7 @@ export default function CTAButton() {
         {/* Pill Body */}
         <div
           className={`relative flex items-center gap-3 px-4 py-2.75 rounded-full border-[2.5px] border-[#ff0c00] overflow-hidden transition-colors duration-300
-          ${hovered ? "bg-[#ff0c00]" : "bg-transparent"}`}
+          ${hovered ? "bg-[#ff0c00]" : "bg-transparent"} ${className}`}
         >
           {/* Ripple */}
           {ripple && (
@@ -42,10 +32,7 @@ export default function CTAButton() {
               key={ripple.key}
               className={`absolute w-10 h-10 rounded-full pointer-events-none animate-ripple
               ${hovered ? "bg-white/40" : "bg-orange-500/25"}`}
-              style={{
-                left: ripple.x,
-                top: ripple.y,
-              }}
+              style={{ left: ripple.x, top: ripple.y }}
             />
           )}
 

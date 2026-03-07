@@ -150,11 +150,11 @@ export default function FeaturesGrid() {
                   className="icon-wrap inline-flex items-center justify-center rounded-xl p-2 sm:p-3 transition-all duration-300"
                   style={{
                     background: isHovered
-                      ? "linear-gradient(135deg, #bf7a20, #e0a84a)"
-                      : "linear-gradient(135deg, #fdf0da, #f5e2bc)",
-                    color: isHovered ? "#fff" : "#9a6820",
+                      ? "linear-gradient(135deg, #FE6E4D, #CC1267)"
+                      : "#CC1267",
+                    color: isHovered ? "#fff" : "#fff",
                     boxShadow: isHovered
-                      ? "0 6px 20px rgba(175,115,30,0.38)"
+                      ? "0 6px 20px rgba(204,18,103,0.35)"
                       : "inset 0 1px 0 rgba(255,255,255,0.8)",
                   }}
                 >
@@ -166,8 +166,8 @@ export default function FeaturesGrid() {
                   style={{
                     color: "transparent",
                     WebkitTextStroke: isHovered
-                      ? "1.5px rgba(185,130,45,0.28)"
-                      : "1.5px rgba(190,160,100,0.18)",
+                      ? "1.5px rgba(204,18,103,0.35)" // matches your gradient hover
+                      : "1.5px rgba(254,110,77,0.25)", // subtle default outline
                   }}
                 >
                   {feature.id}
@@ -188,14 +188,14 @@ export default function FeaturesGrid() {
               </p>
 
               {/* Sliding accent bar */}
-              <div className="h-1 w-full overflow-hidden rounded-full bg-amber-100">
+              <div className="h-1 w-full overflow-hidden rounded-full bg-gradient-to-br from-[#fe6d4d3c] to-[#cc12662b]">
                 <div
                   className="slide-bar h-full rounded-full transition-all duration-300"
                   style={{
                     width: isHovered ? "100%" : "28px",
                     background: isHovered
-                      ? "linear-gradient(90deg, #bf7a20, #e8c46a)"
-                      : "#d4a84a",
+                      ? "linear-gradient(135deg, #FE6E4D, #CC1267)"
+                      : "linear-gradient(135deg, #FFE5DE, #FFD1E3)",
                   }}
                 />
               </div>

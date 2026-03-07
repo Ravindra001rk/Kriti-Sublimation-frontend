@@ -63,10 +63,23 @@ const FeatureProducts = () => {
             className="absolute -bottom-1 left-0 w-full"
             preserveAspectRatio="none"
           >
+            <defs>
+              <linearGradient
+                id="underlineGradientPinkOrange"
+                x1="0%"
+                y1="0%"
+                x2="100%"
+                y2="0%"
+              >
+                <stop offset="0%" stopColor="#FE6E4D" />
+                <stop offset="100%" stopColor="#CC1267" />
+              </linearGradient>
+            </defs>
+
             <motion.path
               d="M2 10 C50 2, 170 2, 218 10"
-              stroke="#FACC15"
-              strokeWidth="3"
+              stroke="url(#underlineGradientPinkOrange)"
+              strokeWidth="6"
               strokeLinecap="round"
               initial={{ pathLength: 0 }}
               whileInView={{ pathLength: 1 }}
@@ -107,6 +120,7 @@ const FeatureProducts = () => {
                 className="absolute bottom-0 left-0 w-full p-3 overflow-hidden 
                      bg-gradient-to-t from-black/100 to-transparent"
               >
+                {/* bg-gradient-to-br from-[#FE6E4D] to-[#CC1267] */}
                 <h3 className="font-bold text-lg md:text-xl lg:text-2xl text-white">
                   {product.title}
                 </h3>

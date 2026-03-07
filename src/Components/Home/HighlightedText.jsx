@@ -49,10 +49,23 @@ const HighlightedText = ({ text, highlights = [], className = "" }) => {
               viewBox="0 0 200 6"
               fill="none"
             >
+              <defs>
+                <linearGradient
+                  id="underlineGradient"
+                  x1="0%"
+                  y1="0%"
+                  x2="100%"
+                  y2="0%"
+                >
+                  <stop offset="0%" stopColor="#FE6E4D" />
+                  <stop offset="100%" stopColor="#CC1267" />
+                </linearGradient>
+              </defs>
+
               <motion.path
                 variants={draw}
                 d="M0 3 C50 6, 150 0, 200 3"
-                stroke="#FACC15"
+                stroke="url(#underlineGradient)"
                 strokeWidth="3"
                 strokeLinecap="round"
               />
