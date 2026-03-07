@@ -7,7 +7,10 @@ import { logo } from "../assets/frontend_assets";
 //     ? "http://localhost:5000"
 //     : `http://${window.location.hostname}:5000`;
 
-const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API =
+  window.location.hostname === "localhost"
+    ? "http://localhost:5000"
+    : "https://kriti-sublimation-backend.onrender.com";
 
 function useAuth() {
   const [authed, setAuthed] = useState(null);
@@ -762,12 +765,9 @@ function SettingsTab() {
   );
 }
 
-
 // ProductsCustomize TAb ───────────────────────────────────────────────────────────────
-function ProductsCustomize(){
-  return(
-    <h1>thi is products..</h1>
-  )
+function ProductsCustomize() {
+  return <h1>thi is products..</h1>;
 }
 // ─── DASHBOARD ───────────────────────────────────────────────────────────────
 function Dashboard({ onLogout }) {
