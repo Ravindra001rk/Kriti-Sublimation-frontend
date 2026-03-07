@@ -2,10 +2,12 @@ import { useState, useEffect, useRef } from "react";
 import React from "react";
 import { logo } from "../assets/frontend_assets";
 
-const API =
-  window.location.hostname === "localhost"
-    ? "http://localhost:5000"
-    : `http://${window.location.hostname}:5000`;
+// const API =
+//   window.location.hostname === "localhost"
+//     ? "http://localhost:5000"
+//     : `http://${window.location.hostname}:5000`;
+
+const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 function useAuth() {
   const [authed, setAuthed] = useState(null);

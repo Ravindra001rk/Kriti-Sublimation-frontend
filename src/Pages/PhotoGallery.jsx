@@ -11,10 +11,12 @@ export default function PhotoGallery() {
   useEffect(() => {
     const fetchPhotos = async () => {
       try {
-        const API =
-          window.location.hostname === "localhost"
-            ? "http://localhost:5000"
-            : `http://${window.location.hostname}:5000`;
+        // const API =
+        //   window.location.hostname === "localhost"
+        //     ? "http://localhost:5000"
+        //     : `http://${window.location.hostname}:5000`;
+
+        const API = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
         const res = await fetch(`${API}/api/photos/retrieve/${phone}`); // ← this line was missing
         const data = await res.json();
