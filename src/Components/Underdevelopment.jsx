@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import React from "react";
+
 export default function UnderDevelopment() {
   const [tick, setTick] = useState(0);
   const [visible, setVisible] = useState(false);
@@ -15,21 +16,21 @@ export default function UnderDevelopment() {
   }, []);
 
   return (
-    <div className="relative min-h-screen bg-brandBg flex items-center justify-center overflow-hidden font-serif">
-      {/* Content */}
+    <div className="relative min-h-screen bg-brandBg flex items-center justify-center overflow-hidden font-serif px-6 md:px-12">
+      
       <div
-        className="relative z-10 text-center max-w-xl px-6 transition-all duration-700 ease-out"
+        className="relative z-10 text-center w-full max-w-xl lg:max-w-2xl transition-all duration-700 ease-out"
         style={{
           opacity: visible ? 1 : 0,
           transform: visible ? "translateY(0)" : "translateY(24px)",
         }}
       >
         {/* Dot loader */}
-        <div className="flex justify-center gap-2.5 mb-8">
+        <div className="flex justify-center gap-2 sm:gap-3 mb-6 sm:mb-8">
           {[0, 1, 2].map((i) => (
             <span
               key={i}
-              className="inline-block w-2.5 h-2.5 rounded-full transition-all duration-300"
+              className="inline-block w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full transition-all duration-300"
               style={{
                 background:
                   tick === i
@@ -42,7 +43,7 @@ export default function UnderDevelopment() {
         </div>
 
         {/* Badge */}
-        <div className="inline-flex items-center gap-2 text-[11px] font-mono tracking-[0.18em] text-gray-800 border border-gray-200 rounded-full px-4 py-1.5 bg-white mb-7">
+        <div className="inline-flex items-center gap-2 text-[10px] sm:text-[11px] font-mono tracking-[0.18em] text-gray-800 border border-gray-200 rounded-full px-3 sm:px-4 py-1.5 bg-white mb-6 sm:mb-7">
           <span
             className="inline-block w-2 h-2 rounded-full"
             style={{
@@ -54,7 +55,7 @@ export default function UnderDevelopment() {
         </div>
 
         {/* Headline */}
-        <h1 className="text-5xl sm:text-6xl font-bold text-[#111] leading-[1.1] tracking-tight mb-5 whitespace-nowrap">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#111] leading-[1.15] tracking-tight mb-4 sm:mb-5">
           This site is currently
           <br />
           <span className="bg-gradient-to-br from-[#FE6E4D] to-[#CC1267] bg-clip-text text-transparent">
@@ -63,18 +64,18 @@ export default function UnderDevelopment() {
         </h1>
 
         {/* Subtext */}
-        <p className="text-base text-zinc-700 leading-relaxed mb-9">
+        <p className="text-sm sm:text-base text-zinc-700 leading-relaxed mb-8 sm:mb-9">
           We're building something great.
         </p>
 
         {/* Divider symbol */}
-        <div className="text-gray-600 text-lg mb-8 transition-all duration-500">
+        <div className="text-gray-600 text-base sm:text-lg mb-6 sm:mb-8 transition-all duration-500">
           {["◆", "◇", "◈"][tick]}
         </div>
 
         {/* Footer */}
-        <p className="text-[11px] font-mono tracking-widest text-gray-600">
-          © {new Date().getFullYear()} &nbsp;·&nbsp; Kriti Sublimation, Birgunj
+        <p className="text-[10px] sm:text-[11px] font-mono tracking-widest text-gray-600">
+          © {new Date().getFullYear()} · Kriti Sublimation, Birgunj
         </p>
       </div>
     </div>
