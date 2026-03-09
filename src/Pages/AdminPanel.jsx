@@ -2,14 +2,10 @@ import { useState, useEffect, useRef } from "react";
 import React from "react";
 import { logo } from "../assets/frontend_assets";
 
-// const API =
-//   window.location.hostname === "localhost"
-//     ? "http://localhost:5000"
-//     : `http://${window.location.hostname}:5000`;
-
 const API =
-  window.location.hostname === "localhost"
-    ? "http://localhost:5000"
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "192.168.1.208"
+    ? `http://${window.location.hostname}:5000`
     : "https://kriti-sublimation-backend.onrender.com";
 
 function useAuth() {
@@ -156,14 +152,19 @@ function Sidebar({ tab, setTab, onLogout }) {
       icon: "M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z",
     },
     {
-      id: "settings",
-      label: "Settings",
-      icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z",
-    },
-    {
       id: "products",
       label: "Products",
       icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4",
+    },
+    {
+      id: "manage",
+      label: "Manage",
+      icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4",
+    },
+    {
+      id: "settings",
+      label: "Settings",
+      icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z",
     },
     ,
   ];
@@ -186,7 +187,7 @@ function Sidebar({ tab, setTab, onLogout }) {
             onClick={() => setTab(item.id)}
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
               tab === item.id
-                ? "text-violet-700 bg-violet-50 border border-violet-100"
+                ? "text-violet-700 bg-violet-50 "
                 : "text-gray-500 hover:text-gray-800 hover:bg-gray-50"
             }`}
           >
@@ -239,6 +240,7 @@ function MobileTopBar({ tab, onLogout }) {
     upload: "Upload Photo",
     gallery: "All Photos",
     settings: "Settings",
+    manage: "Manage",
   };
   return (
     <div className="md:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
@@ -307,6 +309,11 @@ function MobileBottomNav({ tab, setTab }) {
     {
       id: "products",
       label: "Products",
+      icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4",
+    },
+    {
+      id: "manage",
+      label: "Manage",
       icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4",
     },
   ];
@@ -794,6 +801,7 @@ function Dashboard({ onLogout }) {
           {tab === "gallery" && <GalleryTab />}
           {tab === "settings" && <SettingsTab />}
           {tab === "products" && <ProductsTab />}
+          {tab === "manage" && <ManageTab />}
         </main>
       </div>
 
@@ -827,7 +835,12 @@ export default function AdminPanel() {
 }
 
 function ProductsTab() {
-  const [form, setForm] = useState({ name: "", description: "", category: "" });
+  const [form, setForm] = useState({
+    name: "",
+    shortDesc: "",
+    longDesc: "",
+    category: "",
+  });
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -835,7 +848,32 @@ function ProductsTab() {
   const [error, setError] = useState("");
   const [products, setProducts] = useState([]);
   const [view, setView] = useState("upload");
+  const [editProduct, setEditProduct] = useState(null);
+
+  const [editForm, setEditForm] = useState({
+    name: "",
+    shortDesc: "",
+    longDesc: "",
+    category: "",
+  });
+  const [editLoading, setEditLoading] = useState(false);
+  const [editSuccess, setEditSuccess] = useState("");
+  const [editError, setEditError] = useState("");
+  const [editFiles, setEditFiles] = useState([]);
+  const [editPreviews, setEditPreviews] = useState([]);
   const fileRef = useRef();
+  const editFileRef = useRef();
+
+  const categories = [
+    "T-Shirts",
+    "Cup",
+    "Caps",
+    "Lanyard",
+    "ID Cards",
+    "Badges",
+    "Frames",
+    "Other",
+  ];
 
   const fetchProducts = async () => {
     const res = await fetch(`${API}/api/products`, { credentials: "include" });
@@ -854,7 +892,7 @@ function ProductsTab() {
   };
 
   const handleUpload = async () => {
-    if (!form.name || !form.description || !form.category)
+    if (!form.name || !form.shortDesc || !form.category)
       return setError("Fill all fields");
     if (!files.length) return setError("Select at least one image");
     setLoading(true);
@@ -863,7 +901,7 @@ function ProductsTab() {
 
     const formData = new FormData();
     Object.entries(form).forEach(([k, v]) => formData.append(k, v));
-    files.forEach((f) => formData.append("images", f)); // ← fixed
+    files.forEach((f) => formData.append("images", f));
 
     try {
       const res = await fetch(`${API}/api/products/upload`, {
@@ -875,13 +913,13 @@ function ProductsTab() {
       if (!res.ok) setError(data.error);
       else {
         setSuccess("Product uploaded!");
-        setForm({ name: "", description: "", category: "" });
+        setForm({ name: "", shortDesc: "", longDesc: "", category: "" });
         setFiles([]);
-        setPreviews([]); // ← fixed
+        setPreviews([]);
         fetchProducts();
       }
-    } catch {
-      setError("Upload failed");
+    } catch (err) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -896,53 +934,94 @@ function ProductsTab() {
     setProducts((p) => p.filter((pr) => pr._id !== id));
   };
 
-  const categories = [
-    "T-Shirts",
-    "Mugs",
-    "Caps",
-    "ID Cards",
-    "Badges",
-    "Frames",
-    "Metal Sheets",
-    "Other",
-  ];
+  const openEdit = (product) => {
+    setEditProduct(product);
+    setEditForm({
+      name: product.name,
+      shortDesc: product.shortDesc || "",
+      longDesc: product.longDesc || "",
+      category: product.category,
+    });
+    setEditFiles([]);
+    setEditPreviews([]);
+    setEditSuccess("");
+    setEditError("");
+  };
+
+  const closeEdit = () => {
+    setEditProduct(null);
+  };
+
+  const handleEditFile = (fileList) => {
+    const arr = Array.from(fileList);
+    setEditFiles(arr);
+    setEditPreviews(arr.map((f) => URL.createObjectURL(f)));
+  };
+
+  const handleEditSave = async () => {
+    if (!editForm.name || !editForm.shortDesc || !editForm.category)
+      return setEditError("Fill all fields");
+    setEditLoading(true);
+    setEditError("");
+    setEditSuccess("");
+
+    const formData = new FormData();
+    Object.entries(editForm).forEach(([k, v]) => formData.append(k, v));
+    editFiles.forEach((f) => formData.append("images", f));
+
+    try {
+      const res = await fetch(`${API}/api/products/${editProduct._id}`, {
+        method: "PATCH",
+        credentials: "include",
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) setEditError(data.error);
+      else {
+        setEditSuccess("Product updated!");
+        fetchProducts();
+        setTimeout(() => closeEdit(), 1000);
+      }
+    } catch (err) {
+      setEditError(err.message);
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  const handleDeleteImage = async (productId, imageUrl) => {
+    if (!confirm("Remove this image?")) return;
+    try {
+      const res = await fetch(`${API}/api/products/${productId}/image`, {
+        method: "DELETE",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setEditProduct((prev) => ({
+          ...prev,
+          images: prev.images.filter((img) => img !== imageUrl),
+        }));
+        fetchProducts();
+      }
+    } catch {}
+  };
 
   return (
     <div className="w-full">
-      <div className="flex items-center gap-3 mb-6">
-        <button
-          onClick={() => setView("upload")}
-          className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${view === "upload" ? "text-white shadow-md" : "text-gray-500 bg-white border border-gray-200"}`}
-          style={
-            view === "upload"
-              ? { background: "linear-gradient(135deg, #7c3aed, #db2777)" }
-              : {}
-          }
-        >
-          Upload Product
-        </button>
-        <button
-          onClick={() => setView("manage")}
-          className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${view === "manage" ? "text-white shadow-md" : "text-gray-500 bg-white border border-gray-200"}`}
-          style={
-            view === "manage"
-              ? { background: "linear-gradient(135deg, #7c3aed, #db2777)" }
-              : {}
-          }
-        >
-          Manage ({products.length})
-        </button>
-      </div>
-
+      {/* Toggle */}
+    
+      {/* ── Upload View ── */}
       {view === "upload" && (
         <div className="max-w-xl">
           <div className="space-y-4">
-            {/* Image drop zone */}
             <div
               onClick={() => fileRef.current.click()}
               className="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center cursor-pointer hover:border-violet-300 hover:bg-violet-50 transition-all"
             >
-              {previews.length > 0 ? ( // ← fixed
+              {previews.length > 0 ? (
                 <div className="flex gap-2 flex-wrap justify-center">
                   {previews.map((p, i) => (
                     <img
@@ -985,9 +1064,8 @@ function ProductsTab() {
               multiple
               className="hidden"
               onChange={(e) => handleFile(e.target.files)}
-            />{" "}
-            {/* ← fixed */}
-            {/* Name */}
+            />
+
             <div>
               <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
                 Product Name
@@ -1000,7 +1078,41 @@ function ProductsTab() {
                 className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm outline-none focus:border-violet-400 transition-colors placeholder-gray-400 shadow-sm"
               />
             </div>
-            {/* Category */}
+
+            <div>
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
+                Short Description{" "}
+                <span className="text-gray-400 normal-case">
+                  (shown at top)
+                </span>
+              </label>
+              <textarea
+                value={form.shortDesc}
+                placeholder="One line summary..."
+                onChange={(e) =>
+                  setForm({ ...form, shortDesc: e.target.value })
+                }
+                rows={2}
+                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm outline-none focus:border-violet-400 transition-colors placeholder-gray-400 shadow-sm resize-none"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
+                Long Description{" "}
+                <span className="text-gray-400 normal-case">
+                  (shown at bottom)
+                </span>
+              </label>
+              <textarea
+                value={form.longDesc}
+                placeholder="Detailed product description..."
+                onChange={(e) => setForm({ ...form, longDesc: e.target.value })}
+                rows={4}
+                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm outline-none focus:border-violet-400 transition-colors placeholder-gray-400 shadow-sm resize-none"
+              />
+            </div>
+
             <div>
               <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
                 Category
@@ -1018,21 +1130,7 @@ function ProductsTab() {
                 ))}
               </select>
             </div>
-            {/* Description */}
-            <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
-                Description
-              </label>
-              <textarea
-                value={form.description}
-                placeholder="Product description..."
-                onChange={(e) =>
-                  setForm({ ...form, description: e.target.value })
-                }
-                rows={3}
-                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm outline-none focus:border-violet-400 transition-colors placeholder-gray-400 shadow-sm resize-none"
-              />
-            </div>
+
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
                 <p className="text-red-600 text-xs">{error}</p>
@@ -1043,6 +1141,7 @@ function ProductsTab() {
                 <p className="text-green-600 text-xs">{success}</p>
               </div>
             )}
+
             <button
               onClick={handleUpload}
               disabled={loading}
@@ -1057,35 +1156,337 @@ function ProductsTab() {
         </div>
       )}
 
-      {view === "manage" && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {products.map((product) => (
-            <div
-              key={product._id}
-              className="bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-all"
-            >
-              <img
-                src={product.images[0]}
-                alt={product.name}
-                className="w-full h-36 object-cover cursor-pointer"
-                onClick={() => window.open(product.images[0], "_blank")}
-              />
-              <div className="p-3">
-                <p className="text-gray-900 text-sm font-semibold truncate">
-                  {product.name}
-                </p>
-                <p className="text-gray-400 text-xs mt-0.5">
-                  {product.category}
-                </p>
+      {/* ── Manage View ── */}
+    
+    </div>
+  );
+}
+
+function ManageTab() {
+  // const API = "";
+  const [products, setProducts] = useState([]);
+  const [editProduct, setEditProduct] = useState(null);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    shortDesc: "",
+    longDesc: "",
+    category: "",
+  });
+  const [editLoading, setEditLoading] = useState(false);
+  const [editSuccess, setEditSuccess] = useState("");
+  const [editError, setEditError] = useState("");
+  const [editFiles, setEditFiles] = useState([]);
+  const [editPreviews, setEditPreviews] = useState([]);
+  const editFileRef = useRef();
+
+  const categories = [
+    "T-Shirts",
+    "Cup",
+    "Caps",
+    "Lanyard",
+    "ID Cards",
+    "Badges",
+    "Frames",
+    "Other",
+  ];
+
+  const fetchProducts = async () => {
+    const res = await fetch(`${API}/api/products`, { credentials: "include" });
+    const data = await res.json();
+    if (res.ok) setProducts(data.products);
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const handleDelete = async (id) => {
+    if (!confirm("Delete this product?")) return;
+    await fetch(`${API}/api/products/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+    setProducts((p) => p.filter((pr) => pr._id !== id));
+  };
+
+  const openEdit = (product) => {
+    setEditProduct(product);
+    setEditForm({
+      name: product.name,
+      shortDesc: product.shortDesc || "",
+      longDesc: product.longDesc || "",
+      category: product.category,
+    });
+    setEditFiles([]);
+    setEditPreviews([]);
+    setEditSuccess("");
+    setEditError("");
+  };
+
+  const closeEdit = () => setEditProduct(null);
+
+  const handleEditFile = (fileList) => {
+    const arr = Array.from(fileList);
+    setEditFiles(arr);
+    setEditPreviews(arr.map((f) => URL.createObjectURL(f)));
+  };
+
+  const handleEditSave = async () => {
+    if (!editForm.name || !editForm.shortDesc || !editForm.category)
+      return setEditError("Fill all fields");
+    setEditLoading(true);
+    setEditError("");
+    setEditSuccess("");
+
+    const formData = new FormData();
+    Object.entries(editForm).forEach(([k, v]) => formData.append(k, v));
+    editFiles.forEach((f) => formData.append("images", f));
+
+    try {
+      const res = await fetch(`${API}/api/products/${editProduct._id}`, {
+        method: "PATCH",
+        credentials: "include",
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) setEditError(data.error);
+      else {
+        setEditSuccess("Product updated!");
+        fetchProducts();
+        setTimeout(() => closeEdit(), 1000);
+      }
+    } catch (err) {
+      setEditError(err.message);
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  const handleDeleteImage = async (productId, imageUrl) => {
+    if (!confirm("Remove this image?")) return;
+    try {
+      const res = await fetch(`${API}/api/products/${productId}/image`, {
+        method: "DELETE",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageUrl }),
+      });
+      if (res.ok) {
+        setEditProduct((prev) => ({
+          ...prev,
+          images: prev.images.filter((img) => img !== imageUrl),
+        }));
+        fetchProducts();
+      }
+    } catch {}
+  };
+
+  return (
+    <div className="w-full">
+      {/* Products Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        {products.map((product) => (
+          <div
+            key={product._id}
+            className="bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-all"
+          >
+            <img
+              src={product.images[0]}
+              alt={product.name}
+              className="w-full h-36 object-cover cursor-pointer"
+              onClick={() => window.open(product.images[0], "_blank")}
+            />
+            <div className="p-3">
+              <p className="text-gray-900 text-sm font-semibold truncate">
+                {product.name}
+              </p>
+              <p className="text-gray-400 text-xs mt-0.5">{product.category}</p>
+              <div className="flex gap-2 mt-3">
+                <button
+                  onClick={() => openEdit(product)}
+                  className="flex-1 py-1.5 rounded-lg text-xs font-medium text-violet-600 bg-violet-50 hover:bg-violet-100 transition-colors"
+                >
+                  Edit
+                </button>
                 <button
                   onClick={() => handleDelete(product._id)}
-                  className="w-full mt-3 py-1.5 rounded-lg text-xs font-medium text-red-500 bg-red-50 hover:bg-red-100 transition-colors"
+                  className="flex-1 py-1.5 rounded-lg text-xs font-medium text-red-500 bg-red-50 hover:bg-red-100 transition-colors"
                 >
                   Delete
                 </button>
               </div>
             </div>
-          ))}
+          </div>
+        ))}
+      </div>
+
+      {/* Edit Modal */}
+      {editProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="relative mx-auto bg-white rounded-2xl w-full max-w-lg shadow-2xl">
+            <div className="flex items-center justify-between p-5 border-b border-gray-100">
+              <h3 className="font-bold text-gray-900">Edit Product</h3>
+              <button
+                onClick={closeEdit}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-4 space-y-2">
+              {/* Existing Images */}
+              <div>
+                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
+                  Current Images
+                </label>
+                <div className="flex gap-2 flex-wrap">
+                  {editProduct.images.map((img, i) => (
+                    <div key={i} className="relative group">
+                      <img
+                        src={img}
+                        className="h-20 w-20 object-cover rounded-lg shadow"
+                      />
+                      <button
+                        onClick={() => handleDeleteImage(editProduct._id, img)}
+                        className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs hidden group-hover:flex items-center justify-center"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Add More Images */}
+              <div>
+                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
+                  Add More Images
+                </label>
+                <div
+                  onClick={() => editFileRef.current.click()}
+                  className="border-2 border-dashed border-gray-200 rounded-xl p-4 text-center cursor-pointer hover:border-violet-300 hover:bg-violet-50 transition-all"
+                >
+                  {editPreviews.length > 0 ? (
+                    <div className="flex gap-2 flex-wrap justify-center">
+                      {editPreviews.map((p, i) => (
+                        <img
+                          key={i}
+                          src={p}
+                          className="h-16 w-16 object-cover rounded-lg shadow"
+                        />
+                      ))}
+                      <p className="w-full text-xs text-gray-400 mt-1">
+                        Click to change
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-gray-400 text-sm">Click to add images</p>
+                  )}
+                </div>
+                <input
+                  ref={editFileRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => handleEditFile(e.target.files)}
+                />
+              </div>
+
+              {/* Fields */}
+              <div>
+                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
+                  Product Name
+                </label>
+                <input
+                  type="text"
+                  value={editForm.name}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, name: e.target.value })
+                  }
+                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm outline-none focus:border-violet-400 transition-colors shadow-sm"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
+                  Short Description
+                </label>
+                <textarea
+                  value={editForm.shortDesc}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, shortDesc: e.target.value })
+                  }
+                  rows={1}
+                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm outline-none focus:border-violet-400 transition-colors shadow-sm resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
+                  Long Description
+                </label>
+                <textarea
+                  value={editForm.longDesc}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, longDesc: e.target.value })
+                  }
+                  rows={2}
+                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm outline-none focus:border-violet-400 transition-colors shadow-sm resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
+                  Category
+                </label>
+                <select
+                  value={editForm.category}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, category: e.target.value })
+                  }
+                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm outline-none focus:border-violet-400 transition-colors shadow-sm"
+                >
+                  {categories.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {editError && (
+                <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+                  <p className="text-red-600 text-xs">{editError}</p>
+                </div>
+              )}
+              {editSuccess && (
+                <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+                  <p className="text-green-600 text-xs">{editSuccess}</p>
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={closeEdit}
+                  className="flex-1 py-3 rounded-xl text-sm font-medium text-gray-500 bg-gray-100 hover:bg-gray-200 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleEditSave}
+                  disabled={editLoading}
+                  className="flex-1 py-3 rounded-xl text-sm font-semibold text-white shadow-md transition-all hover:opacity-90 active:scale-95 disabled:opacity-50"
+                  style={{
+                    background: "linear-gradient(135deg, #7c3aed, #db2777)",
+                  }}
+                >
+                  {editLoading ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

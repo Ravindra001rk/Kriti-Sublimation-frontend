@@ -12,7 +12,6 @@ const Home = () => {
       <WhyChoose />
       <FeatureProducts />
       <StackTabScroll />
-      <UnderDevelopment/>
     </div>
   );
 };
