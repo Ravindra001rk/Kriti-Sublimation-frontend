@@ -5,7 +5,7 @@ import UnderDevelopment from "../Components/Underdevelopment";
 const About = () => {
   return (
     <div>
-     {/* <UnderDevelopment/> */}
+     <UnderDevelopment/>
     </div>
   );
 };

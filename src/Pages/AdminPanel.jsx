@@ -866,13 +866,13 @@ function ProductsTab() {
 
   const categories = [
     "T-Shirts",
-    "Cup",
-    "Caps",
+    "Cups",
+    "Sublimation",
     "Lanyard",
     "ID Cards",
     "Badges",
     "Frames",
-    "Other",
+    "Accessories",
   ];
 
   const fetchProducts = async () => {

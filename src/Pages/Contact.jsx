@@ -4,7 +4,7 @@ import UnderDevelopment from '../Components/Underdevelopment'
 const Contact = () => {
   return (
     <div>
-      {/* <UnderDevelopment/> */}
+      <UnderDevelopment/>
     </div>
   )
 }
