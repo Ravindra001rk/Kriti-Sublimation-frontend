@@ -7,6 +7,8 @@ const API =
   window.location.hostname === "192.168.1.208"
     ? `http://${window.location.hostname}:5000`
     : "https://kriti-sublimation-backend.onrender.com";
+
+    
 const WHATSAPP = "9779845682132";
 
 const toWebP = (url) => url.replace("/upload/", "/upload/f_webp/");

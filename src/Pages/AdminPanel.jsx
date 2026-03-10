@@ -1012,7 +1012,7 @@ function ProductsTab() {
   return (
     <div className="w-full">
       {/* Toggle */}
-    
+
       {/* ── Upload View ── */}
       {view === "upload" && (
         <div className="max-w-xl">
@@ -1157,7 +1157,6 @@ function ProductsTab() {
       )}
 
       {/* ── Manage View ── */}
-    
     </div>
   );
 }
