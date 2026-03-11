@@ -13,21 +13,21 @@ const WHATSAPP = "9779855086132";
 const toWebP = (url) => url.replace("/upload/", "/upload/f_webp/");
 
 export default function ProductDetail() {
-  const { id } = useParams();
+  const { slug } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
 
   useEffect(() => {
-    fetch(`${API}/api/products/${id}`)
+    fetch(`${API}/api/products/${slug}`)
       .then((r) => r.json())
       .then((data) => {
         setProduct(data.product);
         setLoading(false);
       })
       .catch(() => setLoading(false));
-  }, [id]);
+  }, [slug]);
 
   const handleOrder = () => {
     const message = `Hello, म ${product.name} बारे जानकारी लिन चाहन्छु। कृपया यसको price, MOQ (minimum order quantity) र order कसरी गर्ने भन्ने process पनि बताइदिनु होला। customization option, production time र  delivery details पनि छन् भने share गरिदिनु होला। I’m interested in placing an order. Thank you!`;

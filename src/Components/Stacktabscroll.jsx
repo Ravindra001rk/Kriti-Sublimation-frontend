@@ -16,7 +16,7 @@ const services = [
     subtitle: "Office & Student Ready",
     description:
       "High-quality ID cards in bulk — fast turnaround, sharp print, and digital lanyard printing included. Perfect for offices, schools, and institutions.",
-    stat: "500+",
+    stat: "1000+",
     statLabel: "Cards Per Day",
     bg: "#C9BEFF",
     text: "#111111",
@@ -29,7 +29,7 @@ const services = [
     subtitle: "Mugs · Caps · T-Shirts · Metal",
     description:
       "Custom sublimation on anything — T-shirts, ceramic mugs, metal sheets, caps, and more. Vibrant colors that last. Faster than the market, cheaper too.",
-    stat: "1000+",
+    stat: "2000+",
     statLabel: "Items Printed",
     bg: "#FFA8F2",
     text: "#111111",

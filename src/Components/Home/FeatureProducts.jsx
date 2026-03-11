@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import HighlightedText from "./HighlightedText";
+import { GoArrowUpRight } from "react-icons/go";
 import {
   ButtonBadge,
   Dori,
@@ -9,7 +10,7 @@ import {
   IDCard,
   KeyRing,
 } from "../../assets/frontend_assets";
-import { Link } from "react-router-dom";
+import { Link, Links } from "react-router-dom";
 
 const featuredProducts = [
   {
@@ -118,15 +119,27 @@ const FeatureProducts = () => {
               />
               <div
                 className="absolute bottom-0 left-0 w-full p-3 overflow-hidden 
-                     bg-gradient-to-t from-black/100 to-transparent"
+                     bg-gradient-to-t from-[#000000a1]  to-transparent"
               >
                 {/* bg-gradient-to-br from-[#FE6E4D] to-[#CC1267] */}
-                <h3 className="font-bold text-lg md:text-xl lg:text-2xl text-white">
-                  {product.title}
-                </h3>
-                <p className="text-xs sm:text-sm md:text-base text-white">
-                  {product.desc}
-                </p>
+                <Link to='/products'>
+                  <div className="flex justify-between gap-6 items-center">
+                    <div className="">
+                      <h3 className="font-bold text-lg whitespace-nowrap md:text-xl lg:text-2xl text-white">
+                        {product.title}
+                      </h3>
+                      <p className="text-xs sm:text-sm md:text-xs text-white">
+                        {product.desc}
+                      </p>
+                    </div>
+
+                    <div>
+                      <h1 className="text-white text-3xl">
+                        <GoArrowUpRight />
+                      </h1>
+                    </div>
+                  </div>
+                </Link>
               </div>
             </div>
           );
