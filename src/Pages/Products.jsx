@@ -106,7 +106,7 @@ export default function Products() {
             {filtered.map((product, i) => (
               <div
                 key={product._id}
-                onClick={() => navigate(`/products/${product._id}`)}
+                onClick={() => navigate(`/products/${product.slug}`)}
                 className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer"
                 style={{
                   animation: `fadeIn 0.4s ease forwards`,

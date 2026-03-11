@@ -33,7 +33,7 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/about" element={<About />} />
         <Route path="/gallery" element={<Gallery />} />
-        <Route path="/products/:id" element={<ProductDetail />} />
+       <Route path="/products/:slug" element={<ProductDetail />} />
       </Routes>
 
       {showBtn && <ScrollToTopBtn />}

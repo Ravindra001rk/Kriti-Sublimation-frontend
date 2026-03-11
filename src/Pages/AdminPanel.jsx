@@ -928,7 +928,7 @@ function ProductsTab() {
 
   const handleDelete = async (id) => {
     if (!confirm("Delete this product?")) return;
-    await fetch(`${API}/api/products/${id}`, {
+    await fetch(`${API}/api/products/id/${id}`, {
       method: "DELETE",
       credentials: "include",
     });
@@ -1200,14 +1200,14 @@ function ManageTab() {
     fetchProducts();
   }, []);
 
-  const handleDelete = async (id) => {
-    if (!confirm("Delete this product?")) return;
-    await fetch(`${API}/api/products/${id}`, {
-      method: "DELETE",
-      credentials: "include",
-    });
-    setProducts((p) => p.filter((pr) => pr._id !== id));
-  };
+const handleDelete = async (id) => {
+  if (!confirm("Delete this product?")) return;
+  await fetch(`${API}/api/products/id/${id}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+  setProducts((p) => p.filter((pr) => pr._id !== id));
+};
 
   const openEdit = (product) => {
     setEditProduct(product);
@@ -1243,7 +1243,7 @@ function ManageTab() {
     editFiles.forEach((f) => formData.append("images", f));
 
     try {
-      const res = await fetch(`${API}/api/products/${editProduct._id}`, {
+      const res = await fetch(`${API}/api/products/id/${editProduct._id}`, {
         method: "PATCH",
         credentials: "include",
         body: formData,
@@ -1265,7 +1265,7 @@ function ManageTab() {
   const handleDeleteImage = async (productId, imageUrl) => {
     if (!confirm("Remove this image?")) return;
     try {
-      const res = await fetch(`${API}/api/products/${productId}/image`, {
+      const res = await fetch(`${API}/api/products/id/${productId}/image`, {
         method: "DELETE",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
