@@ -30,7 +30,7 @@ export default function ProductDetail() {
   }, [id]);
 
   const handleOrder = () => {
-    const message = `Hello, I am interested in ${product.name}. Can you share price and details?`;
+    const message = `Hello, म ${product.name} बारे जानकारी लिन चाहन्छु। कृपया यसको price, MOQ (minimum order quantity) र order कसरी गर्ने भन्ने process पनि बताइदिनु होला। customization option, production time र  delivery details पनि छन् भने share गरिदिनु होला। I’m interested in placing an order. Thank you!`;
     const url = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(message)}`;
     window.open(url, "_blank");
   };
