@@ -1187,6 +1187,7 @@ function ManageTab() {
     "ID Cards",
     "Badges",
     "Frames",
+    "Holder",
     "Other",
   ];
 
@@ -1200,14 +1201,14 @@ function ManageTab() {
     fetchProducts();
   }, []);
 
-const handleDelete = async (id) => {
-  if (!confirm("Delete this product?")) return;
-  await fetch(`${API}/api/products/id/${id}`, {
-    method: "DELETE",
-    credentials: "include",
-  });
-  setProducts((p) => p.filter((pr) => pr._id !== id));
-};
+  const handleDelete = async (id) => {
+    if (!confirm("Delete this product?")) return;
+    await fetch(`${API}/api/products/id/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+    setProducts((p) => p.filter((pr) => pr._id !== id));
+  };
 
   const openEdit = (product) => {
     setEditProduct(product);
