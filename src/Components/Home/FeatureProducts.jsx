@@ -122,7 +122,7 @@ const FeatureProducts = () => {
                      bg-gradient-to-t from-[#000000a1]  to-transparent"
               >
                 {/* bg-gradient-to-br from-[#FE6E4D] to-[#CC1267] */}
-                <Link to='/products'>
+                <Link to="/products">
                   <div className="flex justify-between gap-6 items-center">
                     <div className="">
                       <h3 className="font-bold text-lg whitespace-nowrap md:text-xl lg:text-2xl text-white">
@@ -145,10 +145,28 @@ const FeatureProducts = () => {
           );
         })}
       </div>
-      <div className="py-5 mt-2 w-full flex justify-center">
+      <div className="py-8 mt-2 w-full flex justify-center">
         <Link to="/products">
-          <button className="px-4 py-2 cursor-pointer bg-white text-black border border-zinc-400 rounded-3xl">
-            See More Products
+          <button
+            className="group relative px-8 py-3 cursor-pointer overflow-hidden rounded-full font-semibold text-white transition-all duration-300"
+            style={{
+              background: "linear-gradient(135deg, #FE6E4D, #CC1267)",
+              boxShadow: "0 4px 20px rgba(254,110,77,0.4)",
+            }}
+          >
+            {/* Shimmer effect */}
+            <span
+              className="absolute inset-0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"
+              style={{
+                background:
+                  "linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent)",
+              }}
+            />
+
+            {/* Button content */}
+            <span className="relative flex items-center gap-2 text-sm tracking-wide">
+              Explore All Products <GoArrowUpRight />
+            </span>
           </button>
         </Link>
       </div>

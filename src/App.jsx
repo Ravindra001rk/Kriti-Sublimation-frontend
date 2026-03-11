@@ -14,6 +14,7 @@ import ProductDetail from "./Pages/ProductDetail";
 import ClicktoScrollTop from "./Components/ClicktoScrollTop";
 import { useLocation } from "react-router-dom";
 import ScrollToTopBtn from "./Components/ClicktoScrollTop";
+import Footer from "./Components/Footer";
 function App() {
   const location = useLocation();
   const hideOn = ["/admin"]; // add more paths if needed
@@ -23,8 +24,8 @@ function App() {
   return (
     <>
       {/* your routes */}
-      <Navbar/>
-      <ScrollToTop/>
+      <Navbar />
+      <ScrollToTop />
       <Routes>
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/photos/:phone" element={<PhotoGallery />} />
@@ -33,9 +34,9 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/about" element={<About />} />
         <Route path="/gallery" element={<Gallery />} />
-       <Route path="/products/:slug" element={<ProductDetail />} />
+        <Route path="/products/:slug" element={<ProductDetail />} />
       </Routes>
-
+      {!isAdmin && <Footer />}
       {showBtn && <ScrollToTopBtn />}
     </>
   );
