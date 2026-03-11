@@ -19,7 +19,7 @@ export default function Footer() {
       {/* top border */}
       <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-emerald-500 to-transparent"></div>
 
-      <div className="max-w-6xl mx-auto px-6 py-14">
+      <div className="px-4 sm:px-6 md:px-8 lg:px-12 py-10 sm:py-14 md:py-16">
         {/* grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {/* brand */}

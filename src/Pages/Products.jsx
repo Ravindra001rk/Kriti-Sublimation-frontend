@@ -32,15 +32,36 @@ export default function Products() {
     .filter((p) => activeCategory === "All" || p.category === activeCategory)
     .filter((p) => p.name.toLowerCase().includes(search.toLowerCase()));
 
+  // skeleton code
+  const ProductSkeleton = () => (
+    <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+      <div className="relative">
+        <div className="w-full h-44 bg-gray-200 animate-pulse" />
+        <div className="absolute top-2 left-2 w-16 h-5 bg-purple-200 rounded-full animate-pulse" />
+      </div>
+      <div className="p-3 space-y-2">
+        <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4" />
+        <div className="h-3 bg-gray-100 rounded animate-pulse w-full" />
+        <div className="h-3 bg-gray-100 rounded animate-pulse w-2/3" />
+        <div className="mt-3 h-3 bg-purple-100 rounded animate-pulse w-1/3" />
+      </div>
+    </div>
+  );
+
   if (loading)
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <p className="text-gray-400 animate-pulse">Loading products...</p>
+      <div className="min-h-screen bg-brandBg py-12 px-4 sm:px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <ProductSkeleton key={i} />
+            ))}
+          </div>
+        </div>
       </div>
     );
-
   return (
-    <div className="min-h-screen bg-amber-400 bg-brandBg py-12 px-4  sm:px-6">
+    <div className="min-h-screen bg-brandBg py-12 px-4  sm:px-6">
       <div className="max-w-6xl mx-auto">
         {/* search box */}
         {/* Search */}
