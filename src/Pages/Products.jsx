@@ -8,8 +8,12 @@ const API =
     ? `http://${window.location.hostname}:5000`
     : "https://kriti-sublimation-backend.onrender.com";
 
-const toWebP = (url) => url.replace("/upload/", "/upload/f_webp/");
-
+const toWebP = (url) => {
+  if (!url) return "";
+  return url.includes("/upload/")
+    ? url.replace("/upload/", "/upload/f_webp/")
+    : url;
+};
 export default function Products() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,29 +25,24 @@ export default function Products() {
   //fetch product
   useEffect(() => {
     const cached = sessionStorage.getItem("productsCache");
-    const cachedTime = sessionStorage.getItem("productsCacheTime");
-    const isExpired =
-      !cachedTime || Date.now() - parseInt(cachedTime) > 5 * 60 * 1000; // 5 min
 
-    if (cached && !isExpired) {
-      setProducts(JSON.parse(cached));
+    if (cached) {
+      setProducts(JSON.parse(cached)); // show instantly
       setLoading(false);
-    } else {
-      fetch(`${API}/api/products`)
-        .then((r) => r.json())
-        .then((data) => {
-          setProducts(data.products);
-          sessionStorage.setItem(
-            "productsCache",
-            JSON.stringify(data.products),
-          );
-          sessionStorage.setItem("productsCacheTime", Date.now().toString());
-          setLoading(false);
-        })
-        .catch(() => setLoading(false));
     }
+
+    // always fetch fresh data
+    fetch(`${API}/api/products`)
+      .then((r) => r.json())
+      .then((data) => {
+        setProducts(data.products);
+        sessionStorage.setItem("productsCache", JSON.stringify(data.products));
+        sessionStorage.setItem("productsCacheTime", Date.now().toString());
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, []);
-  
+
   // save scroll positon
   useEffect(() => {
     if ("scrollRestoration" in history) {
@@ -174,7 +173,7 @@ export default function Products() {
                 >
                   <div className="relative overflow-hidden">
                     <img
-                      src={toWebP(product.images[0])}
+                      src={toWebP(product.images?.[0])}
                       alt={product.name}
                       className="w-full h-44 object-cover hover:scale-105 transition-transform duration-500"
                     />
