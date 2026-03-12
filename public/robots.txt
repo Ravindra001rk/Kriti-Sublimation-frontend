@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://kriti-sublimation-backend.onrender.com/api/products/sitemap

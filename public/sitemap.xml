@@ -4,4 +4,8 @@
     <loc>https://www.kritisublimation.com.np/</loc>
     <priority>1.0</priority>
   </url>
+  <url>
+    <loc>https://www.kritisublimation.com.np/products</loc>
+    <priority>0.9</priority>
+  </url>
 </urlset>

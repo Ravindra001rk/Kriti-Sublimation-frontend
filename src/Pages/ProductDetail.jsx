@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import React from "react";
 
 const API =
@@ -23,20 +24,17 @@ export default function ProductDetail() {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
-  //fetch products
+
   useEffect(() => {
     fetch(`${API}/api/products/${slug}`)
       .then((r) => r.json())
       .then((data) => {
         setProduct(data.product);
-
-        // fetch similar
         fetch(
           `${API}/api/products/similar/${data.product.category}/${data.product._id}`,
         )
           .then((r) => r.json())
           .then((d) => setRelatedProducts(d.products));
-
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -48,17 +46,12 @@ export default function ProductDetail() {
     window.open(url, "_blank");
   };
 
-  // Split description — first sentence as short desc, rest as long desc
-
   if (loading)
     return (
       <div className="bg-brandBg animate-pulse">
-        {/* ── Main Section ── */}
         <div className="max-w-6xl pt-12 px-6 md:px-12 pb-10">
           <div className="flex flex-col md:flex-row gap-8 lg:gap-16">
-            {/* LEFT: Thumbnails + Main Image */}
             <div className="flex-1 flex flex-col sm:flex-row gap-4">
-              {/* Thumbnails */}
               <div className="flex sm:flex-col gap-2 order-2 sm:order-1">
                 {[...Array(3)].map((_, i) => (
                   <div
@@ -67,34 +60,23 @@ export default function ProductDetail() {
                   />
                 ))}
               </div>
-
-              {/* Main Image */}
               <div className="flex-1 order-1 sm:order-2">
                 <div className="bg-gray-200 rounded-2xl aspect-square w-full" />
               </div>
             </div>
-
-            {/* RIGHT: Details */}
             <div className="flex flex-col justify-between">
               <div className="md:w-80 lg:w-96 flex flex-col gap-3">
-                {/* Title */}
                 <div className="space-y-2 mb-4">
                   <div className="h-7 bg-gray-200 rounded-lg w-4/5" />
                   <div className="h-7 bg-gray-200 rounded-lg w-3/5" />
                 </div>
-
-                {/* Short description */}
                 <div className="space-y-2 mb-6">
                   <div className="h-4 bg-gray-200 rounded w-full" />
                   <div className="h-4 bg-gray-200 rounded w-full" />
                   <div className="h-4 bg-gray-200 rounded w-2/3" />
                 </div>
-
-                {/* WhatsApp CTA button */}
                 <div className="w-full h-14 rounded-xl bg-gray-200 mb-4" />
               </div>
-
-              {/* Hardcoded info */}
               <div>
                 <hr className="border-gray-200 mb-4" />
                 <div className="space-y-2">
@@ -116,14 +98,64 @@ export default function ProductDetail() {
       </div>
     );
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.shortDesc || product.description,
+    image: product.images,
+    url: `https://kritisublimation.com.np/products/${product.slug}`,
+    brand: { "@type": "Brand", name: "Kriti Sublimation" },
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "NPR",
+      availability:
+        product.stock > 0
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
+      seller: { "@type": "Organization", name: "Kriti Sublimation" },
+    },
+  };
+
   return (
-    <div className=" bg-brandBg">
+    <div className="bg-brandBg">
+      <Helmet>
+        <title>{product.name} – Kriti Sublimation, Birgunj</title>
+        <meta
+          name="description"
+          content={
+            product.shortDesc ||
+            product.description?.slice(0, 155) ||
+            `Order ${product.name} from Kriti Sublimation. Fast turnaround, affordable prices in Birgunj.`
+          }
+        />
+        <link
+          rel="canonical"
+          href={`https://kritisublimation.com.np/products/${product.slug}`}
+        />
+        <meta
+          property="og:title"
+          content={`${product.name} – Kriti Sublimation`}
+        />
+        <meta
+          property="og:description"
+          content={product.shortDesc || product.description?.slice(0, 155)}
+        />
+        <meta property="og:image" content={product.images?.[0]} />
+        <meta
+          property="og:url"
+          content={`https://kritisublimation.com.np/products/${product.slug}`}
+        />
+        <script type="application/ld+json">
+          {JSON.stringify(structuredData)}
+        </script>
+      </Helmet>
+
       {/* ── Main Section ── */}
       <div className="max-w-6xl pt-12 px-6 md:px-12 pb-10">
         <div className="flex flex-col md:flex-row gap-8 lg:gap-16">
           {/* LEFT: Thumbnails + Main Image */}
           <div className="flex-1 flex flex-col sm:flex-row gap-4">
-            {/* Thumbnails */}
             {product.images.length > 1 && (
               <div className="flex sm:flex-col gap-2 order-2 sm:order-1 overflow-x-auto sm:overflow-visible">
                 {product.images.map((img, i) => (
@@ -145,8 +177,6 @@ export default function ProductDetail() {
                 ))}
               </div>
             )}
-
-            {/* Main Image */}
             <div className="flex-1 order-1 sm:order-2">
               <div className="bg-gray-50 rounded-2xl overflow-hidden aspect-square">
                 <img
@@ -159,19 +189,14 @@ export default function ProductDetail() {
           </div>
 
           {/* RIGHT: Details */}
-          <div className=" flex flex-col justify-between">
+          <div className="flex flex-col justify-between">
             <div className="md:w-80 lg:w-96 flex flex-col gap-3">
-              {/* Title */}
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight mb-4">
                 {product.name}
               </h1>
-
-              {/* Short description */}
               <p className="text-gray-500 text-sm leading-relaxed mb-6">
                 {product.shortDesc}
               </p>
-
-              {/* WhatsApp CTA */}
               <button
                 onClick={handleOrder}
                 className="w-full py-4 rounded-xl font-bold text-white text-sm flex items-center justify-center gap-3 transition-all hover:opacity-90 hover:shadow-lg active:scale-95 mb-4"
@@ -187,9 +212,8 @@ export default function ProductDetail() {
                 Get a Quote
               </button>
             </div>
-            {/* Hardcoded info */}
-            <div className="">
-              <hr className="border-gray-200 mb-4 " />
+            <div>
+              <hr className="border-gray-200 mb-4" />
               <div className="space-y-2">
                 <p className="text-xs text-gray-500">
                   ✦ High quality custom printing guaranteed
@@ -206,18 +230,15 @@ export default function ProductDetail() {
         </div>
       </div>
 
-      {/* ── Long Description Section (bottom) ── */}
+      {/* ── Long Description ── */}
       {product.longDesc && (
         <div className="px-4 sm:px-6 md:px-10 lg:px-16 pb-12">
           <div className="border-t border-gray-200">
-            {/* Tab header */}
             <div className="flex border-b border-gray-200">
               <div className="px-3 sm:px-5 py-2 sm:py-3 text-sm sm:text-base font-semibold text-gray-900 border-b-2 border-gray-900 -mb-px">
                 Description
               </div>
             </div>
-
-            {/* Long description */}
             <div className="pt-6 sm:pt-8">
               <p className="text-gray-600 text-sm sm:text-base leading-relaxed sm:leading-loose">
                 {product.longDesc}
@@ -227,8 +248,7 @@ export default function ProductDetail() {
         </div>
       )}
 
-      {/* suggestion products */}
-      {/* ── Similar Products Section ── */}
+      {/* ── Similar Products ── */}
       {relatedProducts.length > 0 && (
         <div className="px-6 md:px-12 pb-16 relative">
           <div className="flex justify-between items-center">
@@ -238,54 +258,47 @@ export default function ProductDetail() {
             <div className="flex gap-4 pr-22">
               <button
                 className="hidden md:flex items-center justify-center w-10 h-10 bg-gray-200 rounded-full hover:bg-gray-300 -translate-y-1/2 z-10"
-                onClick={() => {
-                  scrollRef.current.scrollBy({
-                    left: -300,
-                    behavior: "smooth",
-                  });
-                }}
+                onClick={() =>
+                  scrollRef.current.scrollBy({ left: -300, behavior: "smooth" })
+                }
               >
                 &#8592;
               </button>
-              {/* Right arrow (desktop only) */}
               <button
                 className="hidden md:flex items-center justify-center w-10 h-10 bg-gray-200 rounded-full hover:bg-gray-300 -translate-y-1/2 z-10"
-                onClick={() => {
-                  scrollRef.current.scrollBy({ left: 300, behavior: "smooth" });
-                }}
+                onClick={() =>
+                  scrollRef.current.scrollBy({ left: 300, behavior: "smooth" })
+                }
               >
                 &#8594;
               </button>
             </div>
           </div>
           <div className="relative flex items-center">
-            {/* Left arrow (desktop only) */}
-
-            {/* Scrollable container */}
             <div
               ref={scrollRef}
               className="flex gap-6 overflow-x-auto scroll-smooth scrollbar-hide w-full"
             >
               {relatedProducts.map((item) => (
-               <div
-  key={item._id}
-  onClick={() => {
-    navigate(`/products/${item.slug}`);
-    window.scrollTo(0, 0);
-  }}
-  className="flex-shrink-0 bg-white rounded-xl w-56 md:w-60 lg:w-64 cursor-pointer group shadow-sm hover:shadow-md transition-shadow duration-200"
->
-  <div className="aspect-[4/3] md:aspect-[3/2] bg-gray-100 rounded-xl overflow-hidden">
-    <img
-      src={toWebP(item.images[0])}
-      alt={item.name}
-      className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
-    />
-  </div>
-  <p className="text-sm font-medium text-gray-900 text-center mt-2 truncate">
-    {item.name}
-  </p>
-</div>
+                <div
+                  key={item._id}
+                  onClick={() => {
+                    navigate(`/products/${item.slug}`);
+                    window.scrollTo(0, 0);
+                  }}
+                  className="flex-shrink-0 bg-white rounded-xl w-56 md:w-60 lg:w-64 cursor-pointer group shadow-sm hover:shadow-md transition-shadow duration-200"
+                >
+                  <div className="aspect-[4/3] md:aspect-[3/2] bg-gray-100 rounded-xl overflow-hidden">
+                    <img
+                      src={toWebP(item.images[0])}
+                      alt={item.name}
+                      className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                    />
+                  </div>
+                  <p className="text-sm font-medium text-gray-900 text-center mt-2 truncate">
+                    {item.name}
+                  </p>
+                </div>
               ))}
             </div>
           </div>
