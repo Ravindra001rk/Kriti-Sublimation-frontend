@@ -51,7 +51,7 @@ export default function ProductDetail() {
               {[...Array(3)].map((_, i) => (
                 <div
                   key={i}
-                  className="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg bg-gray-200"
+                  className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg bg-gray-200"
                 />
               ))}
             </div>

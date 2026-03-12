@@ -914,10 +914,10 @@ function ProductsTab() {
       if (!res.ok) setError(data.error);
       else {
         setSuccess("Product uploaded!");
+        sessionStorage.removeItem("productsCache"); 
         setForm({ name: "", shortDesc: "", longDesc: "", category: "" });
         setFiles([]);
         setPreviews([]); 
-        sessionStorage.removeItem("productsCache"); 
         fetchProducts();
       }
     } catch (err) {

@@ -21,7 +21,11 @@ export default function Products() {
   //fetch product
   useEffect(() => {
     const cached = sessionStorage.getItem("productsCache");
-    if (cached) {
+    const cachedTime = sessionStorage.getItem("productsCacheTime");
+    const isExpired =
+      !cachedTime || Date.now() - parseInt(cachedTime) > 5 * 60 * 1000; // 5 min
+
+    if (cached && !isExpired) {
       setProducts(JSON.parse(cached));
       setLoading(false);
     } else {
@@ -33,25 +37,30 @@ export default function Products() {
             "productsCache",
             JSON.stringify(data.products),
           );
+          sessionStorage.setItem("productsCacheTime", Date.now().toString());
           setLoading(false);
         })
         .catch(() => setLoading(false));
     }
   }, []);
-
+  
   // save scroll positon
-useEffect(() => {
-  const saved = sessionStorage.getItem("productsScroll");
-  setVisible(true);
-  if (saved) {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        window.scrollTo(0, parseInt(saved));
-        sessionStorage.removeItem("productsScroll");
-      });
-    });
-  }
-}, []);
+  useEffect(() => {
+    if ("scrollRestoration" in history) {
+      history.scrollRestoration = "manual";
+    }
+
+    const saved = sessionStorage.getItem("productsScroll");
+    sessionStorage.removeItem("productsScroll");
+    setVisible(true);
+
+    if (saved) {
+      const pos = parseInt(saved);
+      setTimeout(() => {
+        window.scrollTo({ top: pos, behavior: "instant" });
+      }, 10);
+    }
+  }, []);
 
   const categories = ["All", ...new Set(products.map((p) => p.category))];
   const filtered = products
