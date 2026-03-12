@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import React from "react";
 
@@ -18,12 +18,25 @@ export default function ProductDetail() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeImage, setActiveImage] = useState(0);
-
+  const [relatedProducts, setRelatedProducts] = useState([]);
+  const scrollRef = useRef(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  //fetch products
   useEffect(() => {
     fetch(`${API}/api/products/${slug}`)
       .then((r) => r.json())
       .then((data) => {
         setProduct(data.product);
+
+        // fetch similar
+        fetch(
+          `${API}/api/products/similar/${data.product.category}/${data.product._id}`,
+        )
+          .then((r) => r.json())
+          .then((d) => setRelatedProducts(d.products));
+
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -40,61 +53,60 @@ export default function ProductDetail() {
   if (loading)
     return (
       <div className="bg-brandBg animate-pulse">
-      {/* ── Main Section ── */}
-      <div className="max-w-6xl pt-12 px-6 md:px-12 pb-10">
-        <div className="flex flex-col md:flex-row gap-8 lg:gap-16">
-          
-          {/* LEFT: Thumbnails + Main Image */}
-          <div className="flex-1 flex flex-col sm:flex-row gap-4">
-            {/* Thumbnails */}
-            <div className="flex sm:flex-col gap-2 order-2 sm:order-1">
-              {[...Array(3)].map((_, i) => (
-                <div
-                  key={i}
-                  className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg bg-gray-200"
-                />
-              ))}
-            </div>
-
-            {/* Main Image */}
-            <div className="flex-1 order-1 sm:order-2">
-              <div className="bg-gray-200 rounded-2xl aspect-square w-full" />
-            </div>
-          </div>
-
-          {/* RIGHT: Details */}
-          <div className="flex flex-col justify-between">
-            <div className="md:w-80 lg:w-96 flex flex-col gap-3">
-              {/* Title */}
-              <div className="space-y-2 mb-4">
-                <div className="h-7 bg-gray-200 rounded-lg w-4/5" />
-                <div className="h-7 bg-gray-200 rounded-lg w-3/5" />
+        {/* ── Main Section ── */}
+        <div className="max-w-6xl pt-12 px-6 md:px-12 pb-10">
+          <div className="flex flex-col md:flex-row gap-8 lg:gap-16">
+            {/* LEFT: Thumbnails + Main Image */}
+            <div className="flex-1 flex flex-col sm:flex-row gap-4">
+              {/* Thumbnails */}
+              <div className="flex sm:flex-col gap-2 order-2 sm:order-1">
+                {[...Array(3)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg bg-gray-200"
+                  />
+                ))}
               </div>
 
-              {/* Short description */}
-              <div className="space-y-2 mb-6">
-                <div className="h-4 bg-gray-200 rounded w-full" />
-                <div className="h-4 bg-gray-200 rounded w-full" />
-                <div className="h-4 bg-gray-200 rounded w-2/3" />
+              {/* Main Image */}
+              <div className="flex-1 order-1 sm:order-2">
+                <div className="bg-gray-200 rounded-2xl aspect-square w-full" />
               </div>
-
-              {/* WhatsApp CTA button */}
-              <div className="w-full h-14 rounded-xl bg-gray-200 mb-4" />
             </div>
 
-            {/* Hardcoded info */}
-            <div>
-              <hr className="border-gray-200 mb-4" />
-              <div className="space-y-2">
-                <div className="h-3 bg-gray-200 rounded w-3/4" />
-                <div className="h-3 bg-gray-200 rounded w-4/5" />
-                <div className="h-3 bg-gray-200 rounded w-2/3" />
+            {/* RIGHT: Details */}
+            <div className="flex flex-col justify-between">
+              <div className="md:w-80 lg:w-96 flex flex-col gap-3">
+                {/* Title */}
+                <div className="space-y-2 mb-4">
+                  <div className="h-7 bg-gray-200 rounded-lg w-4/5" />
+                  <div className="h-7 bg-gray-200 rounded-lg w-3/5" />
+                </div>
+
+                {/* Short description */}
+                <div className="space-y-2 mb-6">
+                  <div className="h-4 bg-gray-200 rounded w-full" />
+                  <div className="h-4 bg-gray-200 rounded w-full" />
+                  <div className="h-4 bg-gray-200 rounded w-2/3" />
+                </div>
+
+                {/* WhatsApp CTA button */}
+                <div className="w-full h-14 rounded-xl bg-gray-200 mb-4" />
+              </div>
+
+              {/* Hardcoded info */}
+              <div>
+                <hr className="border-gray-200 mb-4" />
+                <div className="space-y-2">
+                  <div className="h-3 bg-gray-200 rounded w-3/4" />
+                  <div className="h-3 bg-gray-200 rounded w-4/5" />
+                  <div className="h-3 bg-gray-200 rounded w-2/3" />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>      
-    </div>
+      </div>
     );
 
   if (!product)
@@ -210,6 +222,71 @@ export default function ProductDetail() {
               <p className="text-gray-600 text-sm sm:text-base leading-relaxed sm:leading-loose">
                 {product.longDesc}
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* suggestion products */}
+      {/* ── Similar Products Section ── */}
+      {relatedProducts.length > 0 && (
+        <div className="px-6 md:px-12 pb-16 relative">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl poppins font-bold mb-6 whitespace-nowrap">
+              Similar Products
+            </h2>
+            <div className="flex gap-4 pr-22">
+              <button
+                className="hidden md:flex items-center justify-center w-10 h-10 bg-gray-200 rounded-full hover:bg-gray-300 -translate-y-1/2 z-10"
+                onClick={() => {
+                  scrollRef.current.scrollBy({
+                    left: -300,
+                    behavior: "smooth",
+                  });
+                }}
+              >
+                &#8592;
+              </button>
+              {/* Right arrow (desktop only) */}
+              <button
+                className="hidden md:flex items-center justify-center w-10 h-10 bg-gray-200 rounded-full hover:bg-gray-300 -translate-y-1/2 z-10"
+                onClick={() => {
+                  scrollRef.current.scrollBy({ left: 300, behavior: "smooth" });
+                }}
+              >
+                &#8594;
+              </button>
+            </div>
+          </div>
+          <div className="relative flex items-center">
+            {/* Left arrow (desktop only) */}
+
+            {/* Scrollable container */}
+            <div
+              ref={scrollRef}
+              className="flex gap-6 overflow-x-auto scroll-smooth scrollbar-hide w-full"
+            >
+              {relatedProducts.map((item) => (
+               <div
+  key={item._id}
+  onClick={() => {
+    navigate(`/products/${item.slug}`);
+    window.scrollTo(0, 0);
+  }}
+  className="flex-shrink-0 bg-white rounded-xl w-56 md:w-60 lg:w-64 cursor-pointer group shadow-sm hover:shadow-md transition-shadow duration-200"
+>
+  <div className="aspect-[4/3] md:aspect-[3/2] bg-gray-100 rounded-xl overflow-hidden">
+    <img
+      src={toWebP(item.images[0])}
+      alt={item.name}
+      className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+    />
+  </div>
+  <p className="text-sm font-medium text-gray-900 text-center mt-2 truncate">
+    {item.name}
+  </p>
+</div>
+              ))}
             </div>
           </div>
         </div>

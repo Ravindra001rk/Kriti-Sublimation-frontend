@@ -22,7 +22,7 @@ function App() {
   const isAdmin = location.pathname.startsWith("/admin");
 
   return (
-    <>
+   <div className="">
       {/* your routes */}
       <Navbar />
       <ScrollToTop />
@@ -38,7 +38,7 @@ function App() {
       </Routes>
       {!isAdmin && <Footer />}
       {showBtn && <ScrollToTopBtn />}
-    </>
+    </div>
   );
 }
 export default App;

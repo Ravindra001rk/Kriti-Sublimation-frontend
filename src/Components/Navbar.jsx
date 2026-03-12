@@ -52,8 +52,8 @@ useEffect(() => {
       {/* ── NAVBAR ── */}
       {/* ✅ FIX 2: changed from `relative` to `fixed` so z-index stacking works correctly */}
       <div
-        className={` top-0 left-0 w-full z-[100] bg-brandBg backdrop-blur-xs transition-transform duration-300 ease-in-out ${ 
-          show ? "translate-y-0" : "-translate-y-0"
+        className={`top-0 left-0 w-full z-[100] bg-brandBg backdrop-blur-xl transition-transform duration-300 ease-in-out ${ 
+          show ? "translate-y-0" : "-translate-y-full"
         }`}
       >
         <div className="mx-auto flex items-center justify-between px-6 md:px-14 py-3">
