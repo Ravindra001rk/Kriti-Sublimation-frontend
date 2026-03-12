@@ -162,7 +162,7 @@ export default function Products() {
             <p className="text-center text-gray-400">No products found</p>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-              {filtered.map((product, i) => (
+              {[...filtered].reverse().map((product, i) => (
                 <div
                   key={product._id}
                   onClick={() => {
