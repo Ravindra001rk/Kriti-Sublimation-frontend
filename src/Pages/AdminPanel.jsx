@@ -916,7 +916,8 @@ function ProductsTab() {
         setSuccess("Product uploaded!");
         setForm({ name: "", shortDesc: "", longDesc: "", category: "" });
         setFiles([]);
-        setPreviews([]);
+        setPreviews([]); 
+        sessionStorage.removeItem("productsCache"); 
         fetchProducts();
       }
     } catch (err) {

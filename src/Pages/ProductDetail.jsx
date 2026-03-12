@@ -39,9 +39,62 @@ export default function ProductDetail() {
 
   if (loading)
     return (
-      <div className="min-h-[calc(100dvh-4rem)] lg:h-[calc(100dvh-4rem)] flex items-center justify-center bg-brandBg">
-        <div className="w-6 h-6 border-2 border-gray-300 border-t-gray-800 rounded-full animate-spin" />
-      </div>
+      <div className="bg-brandBg animate-pulse">
+      {/* ── Main Section ── */}
+      <div className="max-w-6xl pt-12 px-6 md:px-12 pb-10">
+        <div className="flex flex-col md:flex-row gap-8 lg:gap-16">
+          
+          {/* LEFT: Thumbnails + Main Image */}
+          <div className="flex-1 flex flex-col sm:flex-row gap-4">
+            {/* Thumbnails */}
+            <div className="flex sm:flex-col gap-2 order-2 sm:order-1">
+              {[...Array(3)].map((_, i) => (
+                <div
+                  key={i}
+                  className="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-lg bg-gray-200"
+                />
+              ))}
+            </div>
+
+            {/* Main Image */}
+            <div className="flex-1 order-1 sm:order-2">
+              <div className="bg-gray-200 rounded-2xl aspect-square w-full" />
+            </div>
+          </div>
+
+          {/* RIGHT: Details */}
+          <div className="flex flex-col justify-between">
+            <div className="md:w-80 lg:w-96 flex flex-col gap-3">
+              {/* Title */}
+              <div className="space-y-2 mb-4">
+                <div className="h-7 bg-gray-200 rounded-lg w-4/5" />
+                <div className="h-7 bg-gray-200 rounded-lg w-3/5" />
+              </div>
+
+              {/* Short description */}
+              <div className="space-y-2 mb-6">
+                <div className="h-4 bg-gray-200 rounded w-full" />
+                <div className="h-4 bg-gray-200 rounded w-full" />
+                <div className="h-4 bg-gray-200 rounded w-2/3" />
+              </div>
+
+              {/* WhatsApp CTA button */}
+              <div className="w-full h-14 rounded-xl bg-gray-200 mb-4" />
+            </div>
+
+            {/* Hardcoded info */}
+            <div>
+              <hr className="border-gray-200 mb-4" />
+              <div className="space-y-2">
+                <div className="h-3 bg-gray-200 rounded w-3/4" />
+                <div className="h-3 bg-gray-200 rounded w-4/5" />
+                <div className="h-3 bg-gray-200 rounded w-2/3" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>      
+    </div>
     );
 
   if (!product)

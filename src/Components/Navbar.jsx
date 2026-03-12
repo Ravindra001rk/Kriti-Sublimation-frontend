@@ -16,18 +16,19 @@ const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Show/hide navbar on scroll
-  useEffect(() => {
-    const controlNavbar = () => {
-      if (window.scrollY > lastScrollY) {
-        setShow(false);
-      } else {
-        setShow(true);
-      }
-      setLastScrollY(window.scrollY);
-    };
-    window.addEventListener("scroll", controlNavbar);
-    return () => window.removeEventListener("scroll", controlNavbar);
-  }, [lastScrollY]);
+useEffect(() => {
+  let lastY = window.scrollY;
+  const controlNavbar = () => {
+    if (window.scrollY > lastY) {
+      setShow(false);
+    } else {
+      setShow(true);
+    }
+    lastY = window.scrollY;
+  };
+  window.addEventListener("scroll", controlNavbar);
+  return () => window.removeEventListener("scroll", controlNavbar);
+}, []);
 
   // ✅ FIX 1: Lock scroll on <html> AND <body> to prevent any scroll when menu is open
   useEffect(() => {
@@ -51,7 +52,7 @@ const Navbar = () => {
       {/* ── NAVBAR ── */}
       {/* ✅ FIX 2: changed from `relative` to `fixed` so z-index stacking works correctly */}
       <div
-        className={` top-0 left-0 w-full z-[100] bg-brandBg backdrop-blur-xs transition-transform duration-300 ease-in-out ${
+        className={` top-0 left-0 w-full z-[100] bg-brandBg backdrop-blur-xs transition-transform duration-300 ease-in-out ${ 
           show ? "translate-y-0" : "-translate-y-0"
         }`}
       >
