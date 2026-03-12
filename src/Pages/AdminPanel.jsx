@@ -1189,6 +1189,7 @@ function ManageTab() {
     "Badges",
     "Frames",
     "Holder",
+    "Accessories",
     "Other",
   ];
 
