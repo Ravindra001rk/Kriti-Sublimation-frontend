@@ -43,7 +43,7 @@ function WhyWeStarted() {
   ];
 
   return (
-    <section className="py-32 px-6 bg-brandBg">
+    <section className="py-32 px-6 bg-[#fafafa]">
       <div className=" px-6 md:px-14 flex justify-center items-center pb-36">
         <div className="">
           <h2 className="text-4xl sm:text-5xl md:text-6xl poppins font-extrabold leading-tight tracking-tight ">
@@ -82,7 +82,7 @@ function WhyWeStarted() {
             </span>
           </h2>
 
-          <p className="inter mt-12 max-w-3xl text-zinc-500 leading-relaxed">
+          <p className="inter mt-12 max-w-3xl text-zinc-600 leading-relaxed">
             Kriti Sublimation is a printing and customization service based in
             Nepal. We help businesses, offices, and individuals get their
             printing work done quickly and properly. From ID cards and photo
@@ -113,14 +113,14 @@ function WhyWeStarted() {
           className="text-gray-500 text-sm leading-relaxed mb-10 max-w-md mx-auto"
           style={{ fontFamily: "Inter, sans-serif" }}
         >
-          Across Nepal's printing shops, one problem stayed constant:
-          businesses needed a reliable partner — and kept getting let down.
+          Across Nepal's printing shops, one problem stayed constant: businesses
+          needed a reliable partner — and kept getting let down.
         </p>
 
         {/* Red missing card */}
         <div
           className="rounded-2xl border border-red-200 px-8 py-7 mb-10 text-left space-y-3"
-          style={{ background: "#FFF5F5" }}
+          style={{ background: "#fff1f2" }}
         >
           {missing.map((item) => (
             <div
@@ -158,11 +158,11 @@ function WhyWeStarted() {
 
         {/* "So we started" banner */}
         <div
-          className="rounded-xl border-2 border-gray-800 px-7 py-5 mb-8 text-center"
+          className="rounded-xl border-2 border-gray-800 px-4 py-5 mb-8 text-center"
           style={{ background: "#F9FFE9" }}
         >
           <p
-            className="text-2xl md:text-3xl font-bold text-gray-900"
+            className="text-xl whitespace-nowrap md:text-3xl font-bold text-gray-900"
             style={{ fontFamily: "Poppins, sans-serif" }}
           >
             So We Started{" "}
@@ -235,7 +235,7 @@ function WhatWeDo() {
   ];
 
   return (
-    <section className="py-32 px-6 bg-brandBg">
+    <section className="py-32 px-6 bg-[white]">
       <div className="max-w-5xl mx-auto text-center">
         <h2
           className="text-3xl md:text-4xl font-bold text-gray-900 mb-4"
@@ -283,7 +283,8 @@ const BracketCard = ({ children }) => (
     ].map((cls, i) => (
       <span key={i} className={`absolute w-5 h-5 ${cls} border-gray-400`} />
     ))}
-    <div className="border border-gray-200 rounded-2xl bg-brandBg px-8 py-8 mx-4 my-4 space-y-3">
+    <div className="rounded-2xl border border-green-200 bg-green-50 px-8  py-7 space-y-3">
+      {" "}
       {children}
     </div>
   </div>
@@ -305,7 +306,7 @@ function GrowingSection() {
   ];
 
   return (
-    <section className="py-32 px-6 bg-brandBg ">
+    <section className="py-32 px-6 bg-[#f4f4f5] ">
       <div className="max-w-3xl mx-auto">
         {/* Part A */}
         <div
@@ -408,7 +409,7 @@ function NextChapterSection() {
   ];
 
   return (
-    <section className="py-32 px-6" style={{ background: "#EEF2FF" }}>
+    <section className="py-32 px-6 bg-[#f4f4f5]">
       <div
         ref={ref}
         className="max-w-5xl mx-auto"
@@ -419,7 +420,7 @@ function NextChapterSection() {
         }}
       >
         <h2
-          className="text-3xl md:text-4xl font-bold text-gray-900 text-center mb-10"
+          className="text-3xl md:text-4xl font-bold text-black text-center mb-10"
           style={{ fontFamily: "Poppins, sans-serif" }}
         >
           Let's Print the Next Chapter Together
