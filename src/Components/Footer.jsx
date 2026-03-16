@@ -34,7 +34,7 @@ export default function Footer() {
 
             <div className="space-y-2 text-sm text-black">
               <p>📍 Birgunj, Nepal</p>
-              <p>📞 +977 985-5086132</p>
+              <p>📞 +977 9855086132</p>
               <p>✉️ hello@kritisublimation.com</p>
             </div>
 
