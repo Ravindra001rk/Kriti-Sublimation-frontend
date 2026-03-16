@@ -84,11 +84,11 @@ function HeroText({ title, description }) {
 // ── Shared Video URLs ──
 const VIDEOS = {
   hero2:
-    "https://res.cloudinary.com/dm32whbjq/video/upload/q_60,w_680/button_badge_yjk2gn.mp4",
+    "https://res.cloudinary.com/dm32whbjq/video/upload/q_60,w_680/button_badge_yjk2gn.mp41",
   hero1:
-    "https://res.cloudinary.com/dm32whbjq/video/upload/q_60,w_680/Lanyard_fmd8nz.mp4",
+    "https://res.cloudinary.com/dm32whbjq/video/upload/q_60,w_680/Lanyard_fmd8nz.mp41",
   hero3:
-    "https://res.cloudinary.com/dm32whbjq/video/upload/q_60,w_680/KeyRing_wbpwn9.mp4",
+    "https://res.cloudinary.com/dm32whbjq/video/upload/q_60,w_680/KeyRing_wbpwn9.mp41",
 };
 const VIDEO_CLASS = "rounded-3xl shadow-xl w-full max-w-[380px]";
 
