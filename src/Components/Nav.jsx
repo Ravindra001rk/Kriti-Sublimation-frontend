@@ -13,7 +13,7 @@ function NavLink({ to, label }) {
       </span>
 
       {/* Hover duplicate */}
-      <span className="absolute  top-full left-0 block leading-[1.2em] text-[#ff0c00] transition-transform duration-[250ms] ease-[cubic-bezier(0.76,0,0.24,1)] group-hover:-translate-y-full">
+      <span className="absolute  top-full left-0 block leading-[1.2em] text-[#ff0c00] transition-transform duration-250 ease-[cubic-bezier(0.76,0,0.24,1)] group-hover:-translate-y-full">
         {label}
       </span>
     </Link>
@@ -27,6 +27,7 @@ export default function Nav() {
         <NavLink to="/products" label="Products" />
         <NavLink to="/about" label="About" />
         <NavLink to="/contact" label="Contact" />
+        <NavLink to="/IdCardForm" label="ID Card Form" />
       </nav>
     </div>
   );

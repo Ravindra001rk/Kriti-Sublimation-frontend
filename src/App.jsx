@@ -15,6 +15,9 @@ import ClicktoScrollTop from "./Components/ClicktoScrollTop";
 import { useLocation } from "react-router-dom";
 import ScrollToTopBtn from "./Components/ClicktoScrollTop";
 import Footer from "./Components/Footer";
+import IdCardForm from "./Pages/IdCardForm";
+import OfficeIdCardForm from "./Pages/OfficeIdCardForm";
+import SchoolIdCardForm from "./Pages/SchoolIdCardForm";
 function App() {
   const location = useLocation();
   const hideOn = ["/admin"]; // add more paths if needed
@@ -22,7 +25,7 @@ function App() {
   const isAdmin = location.pathname.startsWith("/admin");
 
   return (
-   <div className="">
+    <div className="">
       {/* your routes */}
       <Navbar />
       <ScrollToTop />
@@ -35,6 +38,21 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/gallery" element={<Gallery />} />
         <Route path="/products/:slug" element={<ProductDetail />} />
+        <Route path="/IdCardForm" element={<IdCardForm />} />
+        <Route path="/OfficeIdCardForm" element={<OfficeIdCardForm />} />
+        <Route path="/SchoolIdCardForm" element={<SchoolIdCardForm />} />
+        <Route
+          path="/IdCardForm/office"
+          element={<IdCardForm initialView="office" />}
+        />
+        <Route
+          path="/IdCardForm/school"
+          element={<IdCardForm initialView="school" />}
+        />
+        <Route
+          path="/IdCardForm/status"
+          element={<IdCardForm initialView="status" />}
+        />
       </Routes>
       {!isAdmin && <Footer />}
       {showBtn && <ScrollToTopBtn />}

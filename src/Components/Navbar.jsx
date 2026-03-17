@@ -128,6 +128,7 @@ useEffect(() => {
               { to: "/products", label: "Products", num: "02" },
               { to: "/about", label: "About", num: "03" },
               { to: "/contact", label: "Contact", num: "04" },
+              { to: "/IdCardForm", label: "ID Card Form", num: "04" },
             ].map(({ to, label, num }) => (
               <NavLink
                 key={to}
