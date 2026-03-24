@@ -16,19 +16,19 @@ const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Show/hide navbar on scroll
-useEffect(() => {
-  let lastY = window.scrollY;
-  const controlNavbar = () => {
-    if (window.scrollY > lastY) {
-      setShow(false);
-    } else {
-      setShow(true);
-    }
-    lastY = window.scrollY;
-  };
-  window.addEventListener("scroll", controlNavbar);
-  return () => window.removeEventListener("scroll", controlNavbar);
-}, []);
+  useEffect(() => {
+    let lastY = window.scrollY;
+    const controlNavbar = () => {
+      if (window.scrollY > lastY) {
+        setShow(false);
+      } else {
+        setShow(true);
+      }
+      lastY = window.scrollY;
+    };
+    window.addEventListener("scroll", controlNavbar);
+    return () => window.removeEventListener("scroll", controlNavbar);
+  }, []);
 
   // ✅ FIX 1: Lock scroll on <html> AND <body> to prevent any scroll when menu is open
   useEffect(() => {
@@ -52,7 +52,7 @@ useEffect(() => {
       {/* ── NAVBAR ── */}
       {/* ✅ FIX 2: changed from `relative` to `fixed` so z-index stacking works correctly */}
       <div
-        className={`top-0 left-0 w-full z-[100] bg-brandBg backdrop-blur-xl transition-transform duration-300 ease-in-out ${ 
+        className={`top-0 left-0 w-full z-[100] bg-brandBg backdrop-blur-xl transition-transform duration-300 ease-in-out ${
           show ? "translate-y-0" : "-translate-y-0"
         }`}
       >
@@ -63,15 +63,15 @@ useEffect(() => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden lg:flex items-center space-x-6">
             <Nav />
           </div>
-          <div className="hidden md:flex">
+          <div className="hidden lg:flex">
             <CTAButton />
           </div>
 
           {/* Mobile Hamburger */}
-          <div className="md:hidden">
+          <div className="lg:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="focus:outline-none"
@@ -85,7 +85,7 @@ useEffect(() => {
       {/* ── MOBILE MENU (rendered OUTSIDE the navbar div, directly in the DOM tree) ── */}
       {/* ✅ FIX 3: Moved overlay + panel OUTSIDE the navbar so they aren't clipped by it.
            This is the key reason the blur wasn't covering the full screen before. */}
-      <div className="md:hidden">
+      <div className="lg:hidden">
         {/* FULL SCREEN BLUR OVERLAY */}
         <div
           onClick={() => setMobileMenuOpen(false)}

@@ -19,6 +19,9 @@ import IdCardForm from "./Pages/IdCardForm";
 import OfficeIdCardForm from "./Pages/OfficeIdCardForm";
 import SchoolIdCardForm from "./Pages/SchoolIdCardForm";
 import FormStatus from "./Pages/FormStatus";
+import SchoolStaffForm from "./Pages/SchoolStaffForm";
+import SchoolStudentsPage from "./Pages/SchoolStudentsPage";
+import LoginPage from "./Pages/LoginPage";
 function App() {
   const location = useLocation();
   const hideOn = ["/admin"]; // add more paths if needed
@@ -42,7 +45,15 @@ function App() {
         <Route path="/IdCardForm" element={<IdCardForm />} />
         <Route path="/OfficeIdCardForm" element={<OfficeIdCardForm />} />
         <Route path="/SchoolIdCardForm" element={<SchoolIdCardForm />} />
-        <Route path="/status" element={<FormStatus  />} />
+        <Route
+          path="/SchoolIdCardForm/students"
+          element={<SchoolStudentsPage />}
+        />
+        <Route path="/SchoolIdCardForm/staff" element={<SchoolStaffForm />} />
+        <Route path="/status" element={<FormStatus />} />
+        <Route path="/status/:id" element={<FormStatus />} />
+        <Route path="/login" element={<LoginPage />} />
+
         <Route
           path="/IdCardForm/office"
           element={<IdCardForm initialView="office" />}

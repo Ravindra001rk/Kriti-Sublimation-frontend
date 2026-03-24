@@ -18,7 +18,6 @@ const statusIcons = {
   "Ready for Collection": "🎉",
 };
 
-// ── Field outside component to prevent focus loss ──
 const Field = ({
   label,
   nepali,
@@ -46,7 +45,7 @@ const Field = ({
       onChange={onChange}
       required={required}
       placeholder={placeholder}
-      className="w-full px-4 py-3 rounded-xl poppins border border-gray-200 focus:outline-none focus:border-[#FE6E4D] focus:ring-2 focus:ring-[#FE6E4D]/20 transition text-gray-800 bg-white"
+      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#FE6E4D] focus:ring-2 focus:ring-[#FE6E4D]/20 transition text-gray-800 bg-white"
     />
   </div>
 );
@@ -56,14 +55,41 @@ const FormStatus = () => {
   const [submissionId, setSubmissionId] = useState("");
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
+  const [formType, setFormType] = useState("");
   const [error, setError] = useState("");
 
-  // Edit/Resubmit state
   const [editing, setEditing] = useState(false);
   const [editForm, setEditForm] = useState({});
   const [resubmitLoading, setResubmitLoading] = useState(false);
   const [resubmitError, setResubmitError] = useState("");
   const [resubmitted, setResubmitted] = useState(false);
+
+  const getEndpointAndType = (id) => {
+    if (id.startsWith("stu-"))
+      return {
+        endpoint: `${import.meta.env.VITE_API_URL}/api/school-applications/status/${id}`,
+        type: "student",
+      };
+    if (id.startsWith("stf-"))
+      return {
+        endpoint: `${import.meta.env.VITE_API_URL}/api/school-staff/status/${id}`,
+        type: "staff",
+      };
+    // default — office
+    return {
+      endpoint: `${import.meta.env.VITE_API_URL}/api/id-applications/status/${id}`,
+      type: "office",
+    };
+  };
+
+  const getResubmitEndpoint = (id, type) => {
+    if (type === "office")
+      return `${import.meta.env.VITE_API_URL}/api/id-applications/${id}/resubmit`;
+    if (type === "student")
+      return `${import.meta.env.VITE_API_URL}/api/school-applications/${id}/resubmit`;
+    if (type === "staff")
+      return `${import.meta.env.VITE_API_URL}/api/school-staff/${id}/resubmit`;
+  };
 
   const handleCheck = async (e) => {
     e.preventDefault();
@@ -72,12 +98,18 @@ const FormStatus = () => {
     setData(null);
     setLoading(true);
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/id-applications/status/${submissionId.trim()}`,
-      );
+      const id = submissionId.trim().toLowerCase();
+      const result = getEndpointAndType(id);
+      if (!result) {
+        setError("Invalid Submission ID. Must start with stu-, or stf-");
+        setLoading(false);
+        return;
+      }
+      const res = await fetch(result.endpoint);
       const json = await res.json();
-      if (!res.ok) throw new Error(json.message || "Submission ID not found");
+      if (!res.ok) throw new Error(json.message || "Not found");
       setData(json);
+      setFormType(result.type);
       setEditing(false);
       setResubmitted(false);
     } catch (err) {
@@ -88,20 +120,43 @@ const FormStatus = () => {
   };
 
   const handleEditOpen = () => {
-    setEditForm({
-      officeName: data.officeName || "",
-      employeeName: data.employeeName || "",
-      employeeNameNepali: data.employeeNameNepali || "",
-      designation: data.designation || "",
-      designationNepali: data.designationNepali || "",
-      citizenshipNo: data.citizenshipNo || "",
-      contactNo: data.contactNo || "",
-      bloodGroup: data.bloodGroup || "",
-      pisNo: data.pisNo || "",
-      permanentAddress: data.permanentAddress || "",
-      permanentAddressNepali: data.permanentAddressNepali || "",
-      otherDetails: data.otherDetails || "",
-    });
+    if (formType === "office") {
+      setEditForm({
+        officeName: data.officeName || "",
+        employeeName: data.employeeName || "",
+        employeeNameNepali: data.employeeNameNepali || "",
+        designation: data.designation || "",
+        designationNepali: data.designationNepali || "",
+        citizenshipNo: data.citizenshipNo || "",
+        contactNo: data.contactNo || "",
+        bloodGroup: data.bloodGroup || "",
+        pisNo: data.pisNo || "",
+        permanentAddress: data.permanentAddress || "",
+        permanentAddressNepali: data.permanentAddressNepali || "",
+        otherDetails: data.otherDetails || "",
+      });
+    } else if (formType === "staff") {
+      setEditForm({
+        schoolName: data.schoolName || "",
+        staffName: data.staffName || "",
+        designation: data.designation || "",
+        contactNo: data.contactNo || "",
+        citizenshipNo: data.citizenshipNo || "",
+        bloodGroup: data.bloodGroup || "",
+        permanentAddress: data.permanentAddress || "",
+      });
+    } else if (formType === "student") {
+      setEditForm({
+        schoolName: data.schoolName || "",
+        studentName: data.studentName || "",
+        guardianName: data.guardianName || "",
+        address: data.address || "",
+        contactNo: data.contactNo || "",
+        dateOfBirth: data.dateOfBirth || "",
+        rollNo: data.rollNo || "",
+        otherDetails: data.otherDetails || "",
+      });
+    }
     setEditing(true);
     setResubmitError("");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -115,15 +170,13 @@ const FormStatus = () => {
     setResubmitError("");
     setResubmitLoading(true);
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/id-applications/${data.submissionId}/resubmit`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(editForm),
-          credentials: "include",
-        },
-      );
+      const endpoint = getResubmitEndpoint(data.submissionId, formType);
+      const res = await fetch(endpoint, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editForm),
+        credentials: "include",
+      });
       const json = await res.json();
       if (!res.ok) throw new Error(json.message || "Resubmission failed");
       setResubmitted(true);
@@ -137,11 +190,440 @@ const FormStatus = () => {
     }
   };
 
+  const DetailCard = ({ headerText, subHeader, photo, fields }) => (
+    <div className="border border-gray-200 rounded-2xl overflow-hidden shadow-md">
+      <div className="bg-gradient-to-r  text-black text-center py-3 px-4">
+        <p className="font-bold text-base tracking-wide">{headerText || "—"}</p>
+      </div>
+
+      <div className="bg-white p-4 flex gap-4">
+        <div className="flex-1 space-y-2">
+          {fields
+            .filter(([, v]) => v)
+            .map(([label, value]) => (
+              <div key={label} className="flex gap-2">
+                <span className="text-xs text-gray-400 w-2/5 flex-shrink-0">
+                  {label}:
+                </span>
+                <span className="text-xs text-gray-900 font-semibold">
+                  {value}
+                </span>
+              </div>
+            ))}
+        </div>
+      </div>
+      <div className="bg-gray-50 border-t border-gray-100 py-2 px-4 text-center">
+        <p className="text-xs text-gray-400">
+          Submitted:{" "}
+          {data?.createdAt
+            ? new Date(data.createdAt).toLocaleDateString("en-NP")
+            : "—"}
+        </p>
+      </div>
+    </div>
+  );
+
+  const renderDetails = () => {
+    if (formType === "office")
+      return (
+        <DetailCard
+          headerText={data.officeName}
+          subHeader="कर्मचारी परिचय-पत्र"
+          photo={data.photo}
+          fields={[
+            [
+              "Employee Name / कर्मचारीको नाम",
+              `${data.employeeName || ""} / ${data.employeeNameNepali || ""}`,
+            ],
+            [
+              "Designation / पद",
+              `${data.designation || ""} / ${data.designationNepali || ""}`,
+            ],
+            ["Citizenship No", data.citizenshipNo],
+            ["Contact No", data.contactNo],
+            ["Blood Group", data.bloodGroup],
+            ["PIS No", data.pisNo],
+            ["Permanent Address", data.permanentAddress],
+          ]}
+        />
+      );
+
+    if (formType === "staff")
+      return (
+        <DetailCard
+          headerText={data.schoolName}
+          subHeader="विद्यालय कर्मचारी परिचय-पत्र"
+          photo={data.photo}
+          fields={[
+            ["Staff Name", data.staffName],
+            ["Designation", data.designation],
+            ["Citizenship No", data.citizenshipNo],
+            ["Contact No", data.contactNo],
+            ["Blood Group", data.bloodGroup],
+            ["Permanent Address", data.permanentAddress],
+          ]}
+        />
+      );
+
+    if (formType === "student")
+      return (
+        <DetailCard
+          headerText={data.schoolName}
+          subHeader="विद्यार्थी परिचय-पत्र"
+          photo={data.photo}
+          fields={[
+            ["Student Name", data.studentName],
+            ["Guardian Name", data.guardianName],
+            ["Address", data.address],
+            ["Contact No", data.contactNo],
+            ["Date of Birth", data.dateOfBirth],
+            ["Roll No", data.rollNo],
+          ]}
+        />
+      );
+  };
+
+  const ResubmitButtons = () => (
+    <>
+      {resubmitError && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-600 text-sm">
+          {resubmitError}
+        </div>
+      )}
+      <div className="flex gap-3">
+        <button
+          type="button"
+          onClick={() => setEditing(false)}
+          className="flex-1 py-4 rounded-xl border border-gray-200 text-gray-600 font-medium hover:bg-gray-50 transition"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={resubmitLoading}
+          className="flex-1 py-4 rounded-xl bg-gradient-to-r from-[#FE6E4D] to-[#CC1267] text-white font-bold hover:opacity-90 transition disabled:opacity-60"
+        >
+          {resubmitLoading ? (
+            <span className="flex items-center justify-center gap-2">
+              <svg
+                className="animate-spin w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                />
+              </svg>
+              Resubmitting...
+            </span>
+          ) : (
+            "Resubmit Application"
+          )}
+        </button>
+      </div>
+    </>
+  );
+
+  const renderEditForm = () => {
+    if (formType === "office")
+      return (
+        <form onSubmit={handleResubmit} className="space-y-5">
+          <Field
+            label="Office's Name"
+            name="officeName"
+            value={editForm.officeName}
+            onChange={handleEditChange}
+            placeholder="e.g. Nepal Rastra Bank"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Field
+              label="Employee's Name"
+              nepali="कर्मचारीको नाम"
+              name="employeeName"
+              value={editForm.employeeName}
+              onChange={handleEditChange}
+              required
+              placeholder="Full name in English"
+            />
+            <Field
+              label="Name in Nepali"
+              name="employeeNameNepali"
+              value={editForm.employeeNameNepali}
+              onChange={handleEditChange}
+              required
+              placeholder="पूरा नाम"
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Field
+              label="Designation"
+              nepali="पद"
+              name="designation"
+              value={editForm.designation}
+              onChange={handleEditChange}
+              required
+              placeholder="e.g. Manager"
+            />
+            <Field
+              label="Designation (Nepali)"
+              name="designationNepali"
+              value={editForm.designationNepali}
+              onChange={handleEditChange}
+              required
+              placeholder="e.g. प्रबन्धक"
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Field
+              label="Citizenship No"
+              name="citizenshipNo"
+              value={editForm.citizenshipNo}
+              onChange={handleEditChange}
+              required
+              placeholder="e.g. 12-34-56-78901"
+            />
+            <Field
+              label="Contact No"
+              name="contactNo"
+              value={editForm.contactNo}
+              onChange={handleEditChange}
+              required
+              type="tel"
+              placeholder="98XXXXXXXX"
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Blood Group
+              </label>
+              <select
+                name="bloodGroup"
+                value={editForm.bloodGroup}
+                onChange={handleEditChange}
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#FE6E4D] transition text-gray-800 bg-white"
+              >
+                <option value="">Select</option>
+                {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map((g) => (
+                  <option key={g} value={g}>
+                    {g}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <Field
+              label="PIS No"
+              name="pisNo"
+              value={editForm.pisNo}
+              onChange={handleEditChange}
+              placeholder="e.g. 001"
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Field
+              label="Permanent Address"
+              nepali="स्थायी ठेगाना"
+              name="permanentAddress"
+              value={editForm.permanentAddress}
+              onChange={handleEditChange}
+              required
+              placeholder="Address in English"
+            />
+            <Field
+              label="Address (Nepali)"
+              name="permanentAddressNepali"
+              value={editForm.permanentAddressNepali}
+              onChange={handleEditChange}
+              required
+              placeholder="स्थायी ठेगाना"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">
+              Others Detail{" "}
+              <span className="text-gray-400 font-normal text-xs">
+                (if any)
+              </span>
+            </label>
+            <textarea
+              name="otherDetails"
+              value={editForm.otherDetails}
+              onChange={handleEditChange}
+              rows={3}
+              placeholder="Any additional information..."
+              className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#FE6E4D] transition text-gray-800 bg-white resize-none"
+            />
+          </div>
+          <ResubmitButtons />
+        </form>
+      );
+
+    if (formType === "staff")
+      return (
+        <form onSubmit={handleResubmit} className="space-y-5">
+          <Field
+            label="School's Name"
+            name="schoolName"
+            value={editForm.schoolName}
+            onChange={handleEditChange}
+            required
+            placeholder="e.g. ABC Secondary School"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Field
+              label="Staff Name"
+              name="staffName"
+              value={editForm.staffName}
+              onChange={handleEditChange}
+              required
+              placeholder="Full name"
+            />
+            <Field
+              label="Designation"
+              name="designation"
+              value={editForm.designation}
+              onChange={handleEditChange}
+              required
+              placeholder="e.g. Teacher"
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Field
+              label="Citizenship No"
+              name="citizenshipNo"
+              value={editForm.citizenshipNo}
+              onChange={handleEditChange}
+              required
+              placeholder="e.g. 12-34-56-78901"
+            />
+            <Field
+              label="Contact No"
+              name="contactNo"
+              value={editForm.contactNo}
+              onChange={handleEditChange}
+              required
+              type="tel"
+              placeholder="98XXXXXXXX"
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">
+                Blood Group
+              </label>
+              <select
+                name="bloodGroup"
+                value={editForm.bloodGroup}
+                onChange={handleEditChange}
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#FE6E4D] transition text-gray-800 bg-white"
+              >
+                <option value="">Select</option>
+                {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map((g) => (
+                  <option key={g} value={g}>
+                    {g}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <Field
+              label="Permanent Address"
+              name="permanentAddress"
+              value={editForm.permanentAddress}
+              onChange={handleEditChange}
+              required
+              placeholder="Address"
+            />
+          </div>
+          <ResubmitButtons />
+        </form>
+      );
+
+    if (formType === "student")
+      return (
+        <form onSubmit={handleResubmit} className="space-y-5">
+          <Field
+            label="School's Name"
+            name="schoolName"
+            value={editForm.schoolName}
+            onChange={handleEditChange}
+            placeholder="e.g. ABC Secondary School"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Field
+              label="Student Name"
+              name="studentName"
+              value={editForm.studentName}
+              onChange={handleEditChange}
+              required
+              placeholder="Full name"
+            />
+            <Field
+              label="Guardian Name"
+              name="guardianName"
+              value={editForm.guardianName}
+              onChange={handleEditChange}
+              required
+              placeholder="Guardian's name"
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Field
+              label="Address"
+              name="address"
+              value={editForm.address}
+              onChange={handleEditChange}
+              required
+              placeholder="Address"
+            />
+            <Field
+              label="Contact No"
+              name="contactNo"
+              value={editForm.contactNo}
+              onChange={handleEditChange}
+              required
+              type="tel"
+              placeholder="98XXXXXXXX"
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Field
+              label="Date of Birth"
+              name="dateOfBirth"
+              value={editForm.dateOfBirth}
+              onChange={handleEditChange}
+              type="date"
+            />
+            <Field
+              label="Roll No"
+              name="rollNo"
+              value={editForm.rollNo}
+              onChange={handleEditChange}
+              placeholder="e.g. 01"
+            />
+          </div>
+          <ResubmitButtons />
+        </form>
+      );
+  };
+
   return (
-    <div className="min-h-screen poppins bg-[#F7F5F2] pt-20 pb-16 px-4">
+    <div className="min-h-screen bg-[#F7F5F2] pt-20 pb-16 px-4">
       <div className="max-w-2xl mx-auto">
-        {/* Header */}
-        <motion.div className="mb-8">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
           <h1 className="text-3xl font-bold text-gray-900 mb-1">
             Check Status
           </h1>
@@ -150,8 +632,8 @@ const FormStatus = () => {
           </p>
         </motion.div>
 
-        {/* Search Box */}
         <motion.div
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 mb-6"
@@ -160,13 +642,12 @@ const FormStatus = () => {
             onSubmit={handleCheck}
             className="flex flex-col sm:flex-row gap-3"
           >
-            {" "}
             <input
               type="text"
               value={submissionId}
               onChange={(e) => setSubmissionId(e.target.value)}
-              placeholder="e.g. hari123"
-              className="flex-1 lowercase px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#FE6E4D] focus:ring-2 focus:ring-[#FE6E4D]/20 transition text-gray-800 font-poppins"
+              placeholder="e.g. hari123 / stu-sita111 / stf-rama456"
+              className="flex-1 px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#FE6E4D] focus:ring-2 focus:ring-[#FE6E4D]/20 transition text-gray-800"
             />
             <button
               type="submit"
@@ -175,7 +656,7 @@ const FormStatus = () => {
             >
               {loading ? (
                 <svg
-                  className="animate-spin w-5 h-5"
+                  className="animate-spin w-5 h-5 mx-auto"
                   fill="none"
                   viewBox="0 0 24 24"
                 >
@@ -206,11 +687,11 @@ const FormStatus = () => {
           </div>
         )}
 
-        {/* Resubmitted success banner */}
         <AnimatePresence>
           {resubmitted && (
             <motion.div
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="bg-green-50 border border-green-200 rounded-2xl p-4 text-green-700 text-sm mb-4 flex items-center gap-2"
             >
@@ -220,33 +701,34 @@ const FormStatus = () => {
           )}
         </AnimatePresence>
 
-        {/* Result */}
         <AnimatePresence>
           {data && !editing && (
             <motion.div
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
               className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden"
             >
-              {/* Banner */}
-              <div className="bg-gradient-to-r poppins from-[#FE6E4D] to-[#CC1267] p-6 text-white">
+              <div className="bg-gradient-to-r from-[#FE6E4D] to-[#CC1267] p-6 text-white">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  {" "}
                   <div>
                     <p className="text-white/70 text-xs mb-1">Submission ID</p>
-                    <p className="text-2xl font-bold font-poppins">
-                      {data.submissionId}
-                    </p>
+                    <p className="text-2xl font-bold">{data.submissionId}</p>
                   </div>
-                  <div className="text-right">
+                  <div className="sm:text-right">
                     <p className="text-white/70 text-xs mb-1">Type</p>
-                    <p className="font-semibold capitalize">{data.type}</p>
+                    <p className="font-semibold capitalize">
+                      {formType === "office"
+                        ? "Office"
+                        : formType === "staff"
+                          ? "School Staff"
+                          : "School Student"}
+                    </p>
                   </div>
                 </div>
               </div>
 
               <div className="p-6 space-y-6">
-                {/* Current Status */}
                 <div>
                   <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
                     Current Status
@@ -257,20 +739,16 @@ const FormStatus = () => {
                     <span>{statusIcons[data.status]}</span>
                     {data.status}
                   </div>
-
-                  {/* Rejection reason */}
                   {data.status === "Rejected" && data.rejectionReason && (
                     <div className="mt-3 bg-red-50 border border-red-200 rounded-xl p-4">
                       <p className="text-sm font-semibold text-red-700 mb-1">
-                        Reason for Rejection (Edit and submit again):
+                        Reason for Rejection:
                       </p>
                       <p className="text-sm text-red-600">
                         {data.rejectionReason}
                       </p>
                     </div>
                   )}
-
-                  {/* Estimated date */}
                   {data.estimatedDate && (
                     <div className="mt-3 bg-green-50 border border-green-200 rounded-xl p-4">
                       <p className="text-sm font-semibold text-green-700 mb-1">
@@ -286,8 +764,7 @@ const FormStatus = () => {
                   )}
                 </div>
 
-                {/* Status Timeline */}
-                {/* {data.statusTimeline && data.statusTimeline.length > 0 && (
+                {data.statusTimeline && data.statusTimeline.length > 0 && (
                   <div>
                     <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
                       Status Timeline
@@ -295,7 +772,7 @@ const FormStatus = () => {
                     <div className="space-y-3">
                       {[...data.statusTimeline].reverse().map((item, i) => (
                         <div key={i} className="flex items-start gap-3">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#FE6E4D]/20 to-[#CC1267]/20 flex items-center justify-center text-sm flex-shrink-0 mt-0.5">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#FE6E4D]/20 to-[#CC1267]/20 flex items-center justify-center text-sm flex-shrink-0">
                             {statusIcons[item.status] || "•"}
                           </div>
                           <div>
@@ -315,121 +792,15 @@ const FormStatus = () => {
                       ))}
                     </div>
                   </div>
-                )} */}
+                )}
 
-                {/* Submitted Details */}
-                {/* Submitted Details - ID Card Style */}
                 <div>
                   <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
                     Submitted Details
                   </p>
-
-                  <div className="border border-gray-200 rounded-2xl overflow-hidden">
-                    {/* Office Name */}
-                    <div className="bg-red-600 text-white text-center py-3 px-4">
-                      <p className="text-lg md:text-xl font-bold">
-                        {data.officeName || "—"}
-                      </p>
-                    </div>
-
-                    {/* Fixed Label */}
-                    <div className="bg-blue-800 text-white text-center py-2 px-4">
-                      <p className="text-sm md:text-base font-bold tracking-wide">
-                        कर्मचारी परिचय-पत्र
-                      </p>
-                    </div>
-
-                    {/* Fields */}
-                    <div className="divide-y divide-gray-100">
-                      {[
-                        [
-                          "Employee Name",
-                          "कर्मचारीको नाम",
-                          data.employeeName,
-                          data.employeeNameNepali,
-                        ],
-                        [
-                          "Designation",
-                          "पद",
-                          data.designation,
-                          data.designationNepali,
-                        ],
-                        ["Citizenship No", null, data.citizenshipNo, null],
-                        ["Contact No", null, data.contactNo, null],
-                        ["Blood Group", null, data.bloodGroup, null],
-                        [
-                          "Permanent Address",
-                          null,
-                          data.permanentAddress,
-                          null,
-                        ],
-                        ["PIS No", null, data.pisNo, null],
-                      ]
-                        .filter(([, , v]) => v)
-                        .map(([label, nepali, value, nepaliValue]) => (
-                          <div
-                            key={label}
-                            className="flex items-start px-4 py-3 gap-2"
-                          >
-                            <div className="w-1/2 shrink-0">
-                              <p className="text-sm font-bold text-gray-900">
-                                {label}
-                                {nepali ? ":" : ":"}
-                              </p>
-                              {nepali && (
-                                <p className="text-sm font-medium text-gray-700">
-                                  {nepali} :
-                                </p>
-                              )}
-                            </div>
-                            <div className="w-1/2">
-                              <p className="text-sm text-gray-800">{value}</p>
-                              {nepaliValue && (
-                                <p className="text-sm text-gray-700">
-                                  {nepaliValue}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-
-                      {data.otherDetails && (
-                        <div className="flex items-start px-4 py-3 gap-2">
-                          <div className="w-1/2 shrink-0">
-                            <p className="text-sm font-bold text-gray-900">
-                              Other Details:
-                            </p>
-                          </div>
-                          <div className="w-1/2">
-                            <p className="text-sm text-gray-800">
-                              {data.otherDetails}
-                            </p>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Submitted date */}
-                      <div className="flex items-start px-4 py-3 gap-2 bg-gray-50">
-                        <div className="w-1/2 shrink-0">
-                          <p className="text-sm font-bold text-gray-900">
-                            Submitted:
-                          </p>
-                        </div>
-                        <div className="w-1/2">
-                          <p className="text-sm text-gray-600">
-                            {data.createdAt
-                              ? new Date(data.createdAt).toLocaleDateString(
-                                  "en-NP",
-                                )
-                              : "—"}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  {renderDetails()}
                 </div>
 
-                {/* Edit & Resubmit button — only if Rejected */}
                 {data.status === "Rejected" && (
                   <button
                     onClick={handleEditOpen}
@@ -443,24 +814,20 @@ const FormStatus = () => {
           )}
         </AnimatePresence>
 
-        {/* Edit Form — only shown when editing */}
         <AnimatePresence>
           {editing && (
             <motion.div
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className="bg-white poppins rounded-3xl shadow-sm border border-gray-100 overflow-hidden"
+              className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden"
             >
-              {/* Banner */}
               <div className="bg-gradient-to-r from-[#FE6E4D] to-[#CC1267] p-6 text-white">
                 <p className="text-white/70 text-xs mb-1">
                   Editing Application
                 </p>
-                <p className="text-2xl font-bold font-mono">
-                  {data.submissionId}
-                </p>
+                <p className="text-2xl font-bold">{data.submissionId}</p>
               </div>
-
               <div className="p-8">
                 <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
                   <p className="text-yellow-800 text-sm font-semibold mb-1">
@@ -470,194 +837,7 @@ const FormStatus = () => {
                     {data.rejectionReason}
                   </p>
                 </div>
-
-                <form onSubmit={handleResubmit} className="space-y-5">
-                  <Field
-                    label="Office's Name"
-                    name="officeName"
-                    value={editForm.officeName}
-                    onChange={handleEditChange}
-                    placeholder="e.g. Nepal Rastra Bank"
-                  />
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Field
-                      label="Employee's Name"
-                      nepali="कर्मचारीको नाम"
-                      name="employeeName"
-                      value={editForm.employeeName}
-                      onChange={handleEditChange}
-                      required
-                      placeholder="Full name in English"
-                    />
-                    <Field
-                      label="Name in Nepali"
-                      nepali="नेपालीमा नाम"
-                      name="employeeNameNepali"
-                      value={editForm.employeeNameNepali}
-                      onChange={handleEditChange}
-                      required
-                      placeholder="पूरा नाम"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Field
-                      label="Designation"
-                      nepali="पद"
-                      name="designation"
-                      value={editForm.designation}
-                      onChange={handleEditChange}
-                      required
-                      placeholder="e.g. Manager"
-                    />
-                    <Field
-                      label="Designation (Nepali)"
-                      nepali="पद नेपालीमा"
-                      name="designationNepali"
-                      value={editForm.designationNepali}
-                      onChange={handleEditChange}
-                      required
-                      placeholder="e.g. प्रबन्धक"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Field
-                      label="Citizenship No"
-                      nepali="ना.प्र.प.नं."
-                      name="citizenshipNo"
-                      value={editForm.citizenshipNo}
-                      onChange={handleEditChange}
-                      required
-                      placeholder="e.g. 12-34-56-78901"
-                    />
-                    <Field
-                      label="Contact No"
-                      name="contactNo"
-                      value={editForm.contactNo}
-                      onChange={handleEditChange}
-                      required
-                      type="tel"
-                      placeholder="98XXXXXXXX"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-1">
-                        Blood Group
-                      </label>
-                      <select
-                        name="bloodGroup"
-                        value={editForm.bloodGroup}
-                        onChange={handleEditChange}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#FE6E4D] focus:ring-2 focus:ring-[#FE6E4D]/20 transition text-gray-800 bg-white"
-                      >
-                        <option value="">Select</option>
-                        {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map(
-                          (g) => (
-                            <option key={g} value={g}>
-                              {g}
-                            </option>
-                          ),
-                        )}
-                      </select>
-                    </div>
-                    <Field
-                      label="PIS No (कर्मचारी संकेत नं.)"
-                      name="pisNo"
-                      value={editForm.pisNo}
-                      onChange={handleEditChange}
-                      placeholder="e.g. 001"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Field
-                      label="Permanent Address"
-                      nepali="स्थायी ठेगाना"
-                      name="permanentAddress"
-                      value={editForm.permanentAddress}
-                      onChange={handleEditChange}
-                      required
-                      placeholder="Address in English"
-                    />
-                    <Field
-                      label="Address (Nepali)"
-                      name="permanentAddressNepali"
-                      value={editForm.permanentAddressNepali}
-                      onChange={handleEditChange}
-                      required
-                      placeholder="स्थायी ठेगाना"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">
-                      Others Detail{" "}
-                      <span className="text-gray-400 font-normal text-xs">
-                        (if any)
-                      </span>
-                    </label>
-                    <textarea
-                      name="otherDetails"
-                      value={editForm.otherDetails}
-                      onChange={handleEditChange}
-                      rows={3}
-                      placeholder="Any additional information..."
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#FE6E4D] focus:ring-2 focus:ring-[#FE6E4D]/20 transition text-gray-800 bg-white resize-none"
-                    />
-                  </div>
-
-                  {resubmitError && (
-                    <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-600 text-sm">
-                      {resubmitError}
-                    </div>
-                  )}
-
-                  <div className="flex gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setEditing(false)}
-                      className="flex-1 py-4 rounded-xl border border-gray-200 text-gray-600 font-medium hover:bg-gray-50 transition"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={resubmitLoading}
-                      className="flex-1 py-4 rounded-xl bg-gradient-to-r from-[#FE6E4D] to-[#CC1267] text-white font-bold hover:opacity-90 active:scale-[0.98] transition disabled:opacity-60"
-                    >
-                      {resubmitLoading ? (
-                        <span className="flex items-center justify-center gap-2">
-                          <svg
-                            className="animate-spin w-5 h-5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                          >
-                            <circle
-                              className="opacity-25"
-                              cx="12"
-                              cy="12"
-                              r="10"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                            />
-                            <path
-                              className="opacity-75"
-                              fill="currentColor"
-                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                            />
-                          </svg>
-                          Resubmitting...
-                        </span>
-                      ) : (
-                        "Resubmit Application"
-                      )}
-                    </button>
-                  </div>
-                </form>
+                {renderEditForm()}
               </div>
             </motion.div>
           )}

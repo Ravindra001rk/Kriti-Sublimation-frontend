@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import imageCompression from "browser-image-compression";
+import Test from "./Test";
 
 // ── Outside component to prevent re-mount on keystroke ──
 const Field = ({
   label,
-  nepali,
   name,
   value,
   onChange,
@@ -18,11 +18,6 @@ const Field = ({
     <label className="block text-sm font-semibold text-gray-700 mb-1">
       {required && <span className="text-red-500 mr-1">*</span>}
       {label}
-      {nepali && (
-        <span className="text-gray-400 font-normal ml-1 text-xs">
-          ({nepali})
-        </span>
-      )}
     </label>
     <input
       type={type}
@@ -36,19 +31,14 @@ const Field = ({
   </div>
 );
 
-const UploadBox = ({ label, required, optional, preview, onChange, icon }) => (
+const UploadBox = ({ label, required, preview, onChange, icon }) => (
   <div>
-    <label className="block flex-col text-sm font-semibold text-gray-700 mb-2">
+    <label className="block text-sm font-semibold text-gray-700 mb-2">
       {required && <span className="text-red-500 mr-1">*</span>}
       {label}
-      {optional && (
-        <span className="text-gray-400 text-xs font-normal ml-1">
-          (optional)
-        </span>
-      )}
     </label>
     <label className="block cursor-pointer">
-      <div className="w-27.5 h-35 rounded-xl border-2 border-dashed border-gray-200 hover:border-[#FE6E4D] transition overflow-hidden flex items-center justify-center">
+      <div className="w-[110px] h-[140px] rounded-xl border-2 border-dashed border-gray-200 hover:border-[#FE6E4D] transition overflow-hidden bg-gray-50 flex items-center justify-center">
         {preview ? (
           <img
             src={preview}
@@ -72,27 +62,19 @@ const UploadBox = ({ label, required, optional, preview, onChange, icon }) => (
   </div>
 );
 
-// ── Main component ──
-const OfficeIdCardForm = () => {
+const SchoolStaffForm = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    officeName: "",
-    employeeName: "",
-    employeeNameNepali: "",
+    schoolName: "",
+    staffName: "",
     designation: "",
-    designationNepali: "",
-    citizenshipNo: "",
     contactNo: "",
+    citizenshipNo: "",
     bloodGroup: "",
-    pisNo: "",
     permanentAddress: "",
-    permanentAddressNepali: "",
-    otherDetails: "",
   });
   const [photo, setPhoto] = useState(null);
-  const [sign, setSign] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
-  const [signPreview, setSignPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submissionId, setSubmissionId] = useState("");
@@ -101,25 +83,18 @@ const OfficeIdCardForm = () => {
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleFile = async (e, type) => {
+  const handleFile = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
     setError("");
-
     const compressed = await imageCompression(file, {
       maxSizeMB: 0.3,
       maxWidthOrHeight: 500,
       useWebWorker: true,
     });
-
     const preview = URL.createObjectURL(compressed);
-    if (type === "photo") {
-      setPhoto(compressed);
-      setPhotoPreview(preview);
-    } else {
-      setSign(compressed);
-      setSignPreview(preview);
-    }
+    setPhoto(compressed);
+    setPhotoPreview(preview);
   };
 
   const handleSubmit = async (e) => {
@@ -134,17 +109,17 @@ const OfficeIdCardForm = () => {
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => fd.append(k, v));
       fd.append("photo", photo);
-      if (sign) fd.append("sign", sign);
+
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}/api/id-applications/office`,
-        { method: "POST", body: fd, credentials: "include" },
+        `${import.meta.env.VITE_API_URL}/api/school-staff/submit`,
+        { method: "POST", body: fd },
       );
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Submission failed");
       setSubmissionId(data.submissionId);
       navigator.clipboard.writeText(data.submissionId).catch(() => {});
       setSubmitted(true);
-      window.scrollTo({ top: 0 });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       setError(err.message);
     } finally {
@@ -152,7 +127,7 @@ const OfficeIdCardForm = () => {
     }
   };
 
-  // ── Success screen ──
+  // ── Success Screen ──
   if (submitted) {
     return (
       <div className="min-h-screen bg-[#F7F5F2] pt-24 pb-16 px-4 flex items-center justify-center">
@@ -180,42 +155,44 @@ const OfficeIdCardForm = () => {
           <p className="text-gray-500 mb-6">
             Your application has been received.
           </p>
+
           <div className="bg-gradient-to-br from-[#FE6E4D]/10 to-[#CC1267]/10 rounded-2xl p-6 mb-4 border border-[#FE6E4D]/20">
             <p className="text-sm text-gray-500 mb-1">Your Submission ID</p>
             <p className="text-3xl font-bold bg-gradient-to-r from-[#FE6E4D] to-[#CC1267] bg-clip-text text-transparent tracking-wider">
               {submissionId}
             </p>
-            <p className="text-s mt-2 flex items-center justify-center gap-1">
-              First 4 digit of your name + last 3 digit of your contact no.
+            <p className="text-xs text-gray-500 mt-2">
+              stf+ First 4 letters of your name + last 3 digits of your contact
+              no.
+            </p>
+            <p className="text-xs text-green-600 mt-1 flex items-center justify-center gap-1">
+              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                <path
+                  fillRule="evenodd"
+                  d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              Copied to clipboard
             </p>
           </div>
-          <p className="text-sm text-gray-400 mb-6">
-            Save this ID to check your application status.
-          </p>
-          {/* Submitted Details Summary */}
+
+          {/* Submitted Details */}
           <div className="text-left border border-gray-100 rounded-2xl overflow-hidden mb-4">
-            <div className="bg-red-600 text-white text-center py-2 px-4">
-              <p className="font-bold">{form.officeName || "—"}</p>
-            </div>
-            <div className="bg-blue-800 text-white text-center py-1.5 px-4">
-              <p className="text-sm font-bold">कर्मचारी परिचय-पत्र</p>
+            <div className=" text-black text-center py-2 px-4">
+              <p className="font-bold">{form.schoolName || "—"}</p>
             </div>
             <div className="divide-y divide-gray-100">
               {[
-                [
-                  "Employee Name / कर्मचारीको नाम",
-                  `${form.employeeName} / ${form.employeeNameNepali}`,
-                ],
-                [
-                  "Designation / पद",
-                  `${form.designation} / ${form.designationNepali}`,
-                ],
+                ["Staff Name", form.staffName],
+                ["Designation", form.designation],
                 ["Citizenship No", form.citizenshipNo],
                 ["Contact No", form.contactNo],
                 ["Blood Group", form.bloodGroup],
                 ["Permanent Address", form.permanentAddress],
               ]
-                .filter(([, v]) => v && v !== " / ")
+                .filter(([, v]) => v)
                 .map(([label, value]) => (
                   <div key={label} className="flex gap-2 px-4 py-2">
                     <span className="text-xs text-gray-400 w-2/5 flex-shrink-0">
@@ -228,38 +205,34 @@ const OfficeIdCardForm = () => {
                 ))}
             </div>
           </div>
-          <div className="flex gap-3">
-            {/* Check Status (Primary now) */}
-            <Link to="/status" className="w-1/2">
-              <button className="w-full py-3 rounded-xl bg-gradient-to-r from-[#FE6E4D] to-[#CC1267] text-white font-medium hover:opacity-90 transition">
-                Check Status
-              </button>
-            </Link>
 
-            {/* New Application (Secondary now) */}
+          <p className="text-sm text-gray-400 mb-6">
+            Save this ID to check your application status.
+          </p>
+
+          <div className="flex gap-3">
+            <button
+              onClick={() => navigate("/status")}
+              className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#FE6E4D] to-[#CC1267] text-white font-medium hover:opacity-90 transition"
+            >
+              Check Status
+            </button>
             <button
               onClick={() => {
                 setSubmitted(false);
                 setForm({
-                  officeName: "",
-                  employeeName: "",
-                  employeeNameNepali: "",
+                  schoolName: "",
+                  staffName: "",
                   designation: "",
-                  designationNepali: "",
-                  citizenshipNo: "",
                   contactNo: "",
+                  citizenshipNo: "",
                   bloodGroup: "",
-                  pisNo: "",
                   permanentAddress: "",
-                  permanentAddressNepali: "",
-                  otherDetails: "",
                 });
                 setPhoto(null);
-                setSign(null);
                 setPhotoPreview(null);
-                setSignPreview(null);
               }}
-              className="w-1/2 py-3 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition"
+              className="flex-1 py-3 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition"
             >
               New Application
             </button>
@@ -270,7 +243,7 @@ const OfficeIdCardForm = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F7F5F2] poppins pt-14 pb-16 px-4">
+    <div className="min-h-screen bg-[#F7F5F2] pt-24 pb-16 px-4">
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <motion.div
@@ -280,10 +253,12 @@ const OfficeIdCardForm = () => {
         >
           <div className="flex items-center gap-3">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Office ID Card
+              <h1 className="text-2xl font-bold text-gray-900">
+                School Staff ID Card
               </h1>
-              <p className="text-gray-400 text-m">कार्यालय परिचय पत्र आवेदन</p>
+              <p className="text-gray-400 text-sm">
+                विद्यालय कर्मचारी परिचय पत्र आवेदन
+              </p>
             </div>
           </div>
         </motion.div>
@@ -296,76 +271,46 @@ const OfficeIdCardForm = () => {
           className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8"
         >
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Photo + Sign */}
-            <div className="flex gap-6">
-              <UploadBox
-                label="Upload Photo"
-                required
-                icon="📷"
-                preview={photoPreview}
-                onChange={(e) => handleFile(e, "photo")}
-              />
-              <UploadBox
-                label="Upload Sign"
-                optional
-                icon="✍️"
-                preview={signPreview}
-                onChange={(e) => handleFile(e, "sign")}
-              />
-            </div>
+            {/* Photo */}
+            <UploadBox
+              label="Upload Photo"
+              required
+              icon="📷"
+              preview={photoPreview}
+              onChange={handleFile}
+            />
 
             <Field
-              label="Office's Name"
-              name="officeName"
-              value={form.officeName}
+              label="School's Name"
+              name="schoolName"
+              value={form.schoolName}
               onChange={handleChange}
-              placeholder="Office's Name"
+              required
+              placeholder="e.g. ABC Secondary School"
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Field
-                label="Employee's Name"
-                name="employeeName"
-                value={form.employeeName}
+                label="Staff Name"
+                name="staffName"
+                value={form.staffName}
                 onChange={handleChange}
                 required
-                placeholder="Full name in English"
+                placeholder="Full name"
               />
-              <Field
-                label="कर्मचारीको नाम"
-                // nepali="नेपालीमा नाम"
-                name="employeeNameNepali"
-                value={form.employeeNameNepali}
-                onChange={handleChange}
-                required
-                placeholder="पूरा नाम"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Field
                 label="Designation"
                 name="designation"
                 value={form.designation}
                 onChange={handleChange}
                 required
-                placeholder="e.g. Manager"
-              />
-              <Field
-                label="पद"
-                // nepali="पद नेपालीमा"
-                name="designationNepali"
-                value={form.designationNepali}
-                onChange={handleChange}
-                required
-                placeholder="e.g. प्रबन्धक"
+                placeholder="e.g. Teacher"
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Field
                 label="Citizenship No"
-                // nepali="नागरिकता नं."
                 name="citizenshipNo"
                 value={form.citizenshipNo}
                 onChange={handleChange}
@@ -405,48 +350,12 @@ const OfficeIdCardForm = () => {
                 </select>
               </div>
               <Field
-                label="PIS No (कर्मचारी संकेत नं.)"
-                name="pisNo"
-                value={form.pisNo}
-                onChange={handleChange}
-                placeholder="e.g. 001"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Field
                 label="Permanent Address"
-                // nepali="स्थायी ठेगाना"
                 name="permanentAddress"
                 value={form.permanentAddress}
                 onChange={handleChange}
                 required
-                placeholder="Permanent Address"
-              />
-              <Field
-                label="स्थायी ठेगाना"
-                name="permanentAddressNepali"
-                value={form.permanentAddressNepali}
-                onChange={handleChange}
-                required
-                placeholder="स्थायी ठेगाना"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">
-                Others Detail{" "}
-                <span className="text-gray-400 font-normal text-xs">
-                  (if any)
-                </span>
-              </label>
-              <textarea
-                name="otherDetails"
-                value={form.otherDetails}
-                onChange={handleChange}
-                rows={3}
-                placeholder="Any additional information..."
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#FE6E4D] focus:ring-2 focus:ring-[#FE6E4D]/20 transition text-gray-800 bg-white resize-none"
+                placeholder="Address"
               />
             </div>
 
@@ -458,6 +367,7 @@ const OfficeIdCardForm = () => {
 
             <button
               type="submit"
+              onKeyDown={(e) => e.key === " " && e.preventDefault()}
               disabled={loading}
               className="w-full py-4 rounded-xl bg-gradient-to-r from-[#FE6E4D] to-[#CC1267] text-white font-bold text-lg hover:opacity-90 active:scale-[0.98] transition disabled:opacity-60 disabled:cursor-not-allowed"
             >
@@ -488,15 +398,17 @@ const OfficeIdCardForm = () => {
                 "Submit Application"
               )}
             </button>
-            <p className="text-sm text-zinc-500 text-center">
-              ⚠️ सबमिट गर्नु अघि सबै विवरण राम्ररी जाँच गर्नुहोस्। गलत जानकारीको
-              लागि Kriti Sublimation जिम्मेवार हुने छैन।
+
+            <p className="text-xs text-gray-400 text-center">
+              ⚠️ Please verify all details before submitting. Kriti Sublimation
+              is not responsible for errors in the submitted information.
             </p>
           </form>
+          {/* <Test /> */}
         </motion.div>
       </div>
     </div>
   );
 };
 
-export default OfficeIdCardForm;
+export default SchoolStaffForm;

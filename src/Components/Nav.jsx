@@ -22,9 +22,9 @@ function NavLink({ to, label }) {
 
 export default function Nav() {
   return (
-    <div className=" flex items-center justify-center poppins font-['Syne']">
-      <nav className="flex items-center gap-8">
-        <NavLink to="/products" label="Products"/>
+    <div className="flex items-center justify-center poppins font-['Syne']">
+      <nav className="flex items-center gap-4 md:gap-6 lg:gap-8 text-sm md:text-base lg:text-lg">
+        <NavLink to="/products" label="Products" />
         <NavLink to="/about" label="About" />
         <NavLink to="/contact" label="Contact" />
         <NavLink to="/IdCardForm" label="ID Card Form" />

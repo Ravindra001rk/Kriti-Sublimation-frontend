@@ -34,9 +34,9 @@ const IdCardForm = () => {
           <motion.div
             key={btn.label}
             onClick={() => navigate(btn.path)}
-            className="group relative bg-white rounded-2xl px-8 py-3 shadow-sm border border-gray-100 cursor-pointer hover:shadow-xl hover:border-[#FE6E4D]/30 transition-all duration-300 overflow-hidden"
+            className="group relative bg-white rounded-2xl px-8 py-3 shadow-sm border border-gray-100 cursor-pointer hover:shadow-2xs 0 transition-all duration-300 overflow-hidden"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-[#FE6E4D]/5 to-[#CC1267]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            {/* <div className="absolute inset-0 bg-gradient-to-br from-[#FE6E4D]/5 to-[#CC1267]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" /> */}
             <div className="text-4xl mb-4">{btn.icon}</div>
             <h2 className="text-2xl font-bold text-gray-900 mb-1">
               {btn.label}
@@ -68,9 +68,9 @@ const IdCardForm = () => {
       <div className="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
         <motion.div
           onClick={() => navigate("/status")}
-          className="group relative bg-white rounded-2xl px-8 py-5 shadow-sm border border-gray-100 cursor-pointer hover:shadow-xl hover:border-[#FACC15]/50 transition-all duration-300 overflow-hidden"
+          className="group relative bg-white rounded-2xl px-8 py-5 shadow-sm border border-gray-100 cursor-pointer hover:shadow-2xs hover:border-[#FACC15]/50 transition-all duration-300 overflow-hidden"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-[#FACC15]/10 to-[#FACC15]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          {/* <div className="absolute inset-0 bg-gradient-to-br from-[#FACC15]/10 to-[#FACC15]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" /> */}
           <div className="text-4xl mb-4">🔍</div>
           <h2 className="text-2xl font-bold text-gray-900 mb-1">
             Check Status

@@ -1527,7 +1527,19 @@ function IDCardTab({ onStatusChange }) {
       console.error(err);
     }
   };
-
+const handleSendSMS = async (id) => {
+  try {
+    const res = await fetch(`${API}/api/id-applications/${id}/send-sms`, {
+      method: "POST",
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (res.ok) alert("SMS sent!");
+    else alert(data.message);
+  } catch (err) {
+    alert("SMS failed");
+  }
+};
   const pendingCount = applications.filter(
     (a) => a.status === "Pending",
   ).length;
@@ -1854,6 +1866,12 @@ function IDCardTab({ onStatusChange }) {
                                 : "Save Status"}
                           </button>
 
+                          <button
+                            onClick={() => handleSendSMS(app._id)}
+                            className="w-full py-3 rounded-xl text-sm font-semibold text-white bg-green-500 hover:bg-green-600 transition"
+                          >
+                            📱 Send SMS
+                          </button>
                           <button
                             onClick={() => handleDelete(app._id)}
                             className="w-full py-3 rounded-xl text-sm font-semibold text-red-500 bg-red-50 hover:bg-red-100 transition"
