@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
 const statusColors = {
@@ -52,6 +52,8 @@ const Field = ({
 
 const FormStatus = () => {
   const navigate = useNavigate();
+  const { id: urlId } = useParams(); // ← grab :id from the URL
+
   const [submissionId, setSubmissionId] = useState("");
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
@@ -75,7 +77,6 @@ const FormStatus = () => {
         endpoint: `${import.meta.env.VITE_API_URL}/api/school-staff/status/${id}`,
         type: "staff",
       };
-    // default — office
     return {
       endpoint: `${import.meta.env.VITE_API_URL}/api/id-applications/status/${id}`,
       type: "office",
@@ -91,32 +92,49 @@ const FormStatus = () => {
       return `${import.meta.env.VITE_API_URL}/api/school-staff/${id}/resubmit`;
   };
 
-  const handleCheck = async (e) => {
-    e.preventDefault();
-    if (!submissionId.trim()) return;
+  // Core fetch logic extracted so it can be called both from the form and on mount
+  const fetchStatus = async (id) => {
+    const trimmed = id.trim().toLowerCase();
+    if (!trimmed) return;
+
     setError("");
     setData(null);
     setLoading(true);
+    setEditing(false);
+    setResubmitted(false);
+
     try {
-      const id = submissionId.trim().toLowerCase();
-      const result = getEndpointAndType(id);
-      if (!result) {
-        setError("Invalid Submission ID. Must start with stu-, or stf-");
-        setLoading(false);
-        return;
-      }
+      const result = getEndpointAndType(trimmed);
       const res = await fetch(result.endpoint);
       const json = await res.json();
       if (!res.ok) throw new Error(json.message || "Not found");
       setData(json);
       setFormType(result.type);
-      setEditing(false);
-      setResubmitted(false);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Auto-fetch when the component mounts with a URL param
+  useEffect(() => {
+    if (urlId) {
+      setSubmissionId(urlId);
+      fetchStatus(urlId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlId]);
+
+  const handleCheck = async (e) => {
+    e.preventDefault();
+    const trimmed = submissionId.trim().toLowerCase();
+    if (!trimmed) return;
+
+    // Update the URL so the link becomes shareable
+    navigate(`/status/${trimmed}`, { replace: true });
+
+    await fetchStatus(trimmed);
   };
 
   const handleEditOpen = () => {
@@ -192,10 +210,9 @@ const FormStatus = () => {
 
   const DetailCard = ({ headerText, subHeader, photo, fields }) => (
     <div className="border border-gray-200 rounded-2xl overflow-hidden shadow-md">
-      <div className="bg-gradient-to-r  text-black text-center py-3 px-4">
+      <div className="bg-gradient-to-r text-black text-center py-3 px-4">
         <p className="font-bold text-base tracking-wide">{headerText || "—"}</p>
       </div>
-
       <div className="bg-white p-4 flex gap-4">
         <div className="flex-1 space-y-2">
           {fields
