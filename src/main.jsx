@@ -6,14 +6,17 @@ import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { TeacherAuthProvider } from "./context/TeacherAuthContext.jsx";
+import { UserAuthProvider } from "./context/UserAuthContext.jsx";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <TeacherAuthProvider>
-      <BrowserRouter>
-        <HelmetProvider>
-          <App />
-        </HelmetProvider>
-      </BrowserRouter>
+      <UserAuthProvider>
+        <BrowserRouter>
+          <HelmetProvider>
+            <App />
+          </HelmetProvider>
+        </BrowserRouter>
+      </UserAuthProvider>
     </TeacherAuthProvider>
   </StrictMode>,
 );

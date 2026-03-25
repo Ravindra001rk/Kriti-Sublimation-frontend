@@ -279,7 +279,7 @@ export default function ContactUs() {
 
   return (
     <div
-      className="min-h-screen bg-[#FAFAF9]"
+      className="min-h-screen bg-[#FAFAF9] relative z-0"
       style={{ fontFamily: "Poppins, sans-serif" }}
     >
       <style>{`
@@ -300,7 +300,7 @@ export default function ContactUs() {
           pointer-events: none;
         }
       `}</style>
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 md:py-16">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12 md:py-16 relative z-0">
         {/* ── Hero ── */}
         <div
           className="text-center mb-12"
@@ -311,7 +311,7 @@ export default function ContactUs() {
               "opacity 0.7s ease, transform 0.7s cubic-bezier(.22,1,.36,1)",
           }}
         >
-          <h2 className="text-4xl pb-12 sm:text-5xl md:text-6xl poppins font-extrabold leading-tight tracking-tight ">
+          <h2 className="text-4xl pb-12 sm:text-5xl md:text-6xl poppins font-extrabold leading-tight tracking-tight relative z-0">
             <span className="relative inline-block">
               Contact Us
               <svg

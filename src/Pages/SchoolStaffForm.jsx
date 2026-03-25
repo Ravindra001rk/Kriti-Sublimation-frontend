@@ -286,7 +286,7 @@ const SchoolStaffForm = () => {
               value={form.schoolName}
               onChange={handleChange}
               required
-              placeholder="e.g. ABC Secondary School"
+              placeholder="e.g. Organization's Name"
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

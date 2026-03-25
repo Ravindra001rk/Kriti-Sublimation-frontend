@@ -10,7 +10,6 @@ const SchoolIdCardForm = () => {
     <div className=" bg-[#F7F5F2] pt-16 md:pt-14 pb-26 px-4 poppins">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
-        {/* s */}
         <motion.div className="mb-4">
           <div className="text-center mb-10">
             <h1 className="text-2xl md:text-5xl font-bold text-gray-900 mb-2">
@@ -26,8 +25,6 @@ const SchoolIdCardForm = () => {
             onClick={() => navigate("/SchoolIdCardForm/students")}
             className="group relative bg-white rounded-2xl p-8 shadow-sm border border-gray-100 cursor-pointer hover:shadow-xl hover:border-[#FE6E4D]/30 transition-all duration-300 overflow-hidden"
           >
-            {/* <div className="absolute inset-0 bg-gradient-to-br from-[#FE6E4D]/6 to-[#CC1267]/6 opacity-0 group-hover:opacity-100 transition-opacity duration-300" /> */}
-
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
               For Students
             </h2>

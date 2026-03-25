@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
 import React from "react";
-import { useTeacherAuth } from "../context/TeacherAuthContext";
+import { useUserAuth } from "../context/UserAuthContext";
 
 export default function CTAButton({ className = "" }) {
-  const { teacher } = useTeacherAuth();
+  const { user } = useUserAuth();
 
-  if (teacher) {
+  if (user) {
     return (
       <Link to="/profile">
         <button

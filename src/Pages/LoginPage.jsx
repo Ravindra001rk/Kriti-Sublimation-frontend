@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { useTeacherAuth } from "../context/TeacherAuthContext";
+import { useUserAuth } from "../context/UserAuthContext";
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { login } = useTeacherAuth();
+  const { login } = useUserAuth();
   const [tab, setTab] = useState("login"); // "login" | "register"
 
   // Login state
@@ -34,12 +34,11 @@ const LoginPage = () => {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          credentials: "include",
           body: JSON.stringify(loginForm),
         },
       );
-
-      const text = await res.text();
-      console.log(text);
+      const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Login failed");
       login(data.user);
       navigate("/profile");
@@ -49,7 +48,6 @@ const LoginPage = () => {
       setLoginLoading(false);
     }
   };
-
   const handleRegister = async (e) => {
     e.preventDefault();
     setRegisterError("");

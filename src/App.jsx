@@ -22,6 +22,7 @@ import FormStatus from "./Pages/FormStatus";
 import SchoolStaffForm from "./Pages/SchoolStaffForm";
 import SchoolStudentsPage from "./Pages/SchoolStudentsPage";
 import LoginPage from "./Pages/LoginPage";
+import Profile from "./Pages/Profile";
 function App() {
   const location = useLocation();
   const hideOn = ["/admin"]; // add more paths if needed
@@ -29,10 +30,11 @@ function App() {
   const isAdmin = location.pathname.startsWith("/admin");
 
   return (
-    <div className="">
+    <div className="bg-brandBg pt-16">
       {/* your routes */}
       <Navbar />
       <ScrollToTop />
+      <SmoothScroll/>
       <Routes>
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/photos/:phone" element={<PhotoGallery />} />
@@ -53,6 +55,7 @@ function App() {
         <Route path="/status" element={<FormStatus />} />
         <Route path="/status/:id" element={<FormStatus />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/profile" element={<Profile />} />
 
         <Route
           path="/IdCardForm/office"

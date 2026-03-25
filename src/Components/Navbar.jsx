@@ -52,14 +52,14 @@ const Navbar = () => {
       {/* ── NAVBAR ── */}
       {/* ✅ FIX 2: changed from `relative` to `fixed` so z-index stacking works correctly */}
       <div
-        className={`top-0 left-0 w-full z-[100] bg-brandBg backdrop-blur-xl transition-transform duration-300 ease-in-out ${
-          show ? "translate-y-0" : "-translate-y-0"
+        className={`fixed top-0 left-0 w-full z-[100] bg-transparent backdrop-blur-xl transition-transform duration-300 ease-in-out ${
+          show ? "translate-y-0" : "-translate-y-full"
         }`}
       >
         <div className="mx-auto flex items-center justify-between px-6 md:px-14 py-3">
           {/* Logo */}
           <Link to="/" onClick={handleLogoClick} className="shrink-0">
-            <img src={logo} alt="Logo" className="h-12" />
+            <img src={logo} alt="Logo" className="h-9 sm:h-10 lg:h-12" />
           </Link>
 
           {/* Desktop Navigation */}
@@ -74,7 +74,7 @@ const Navbar = () => {
           <div className="lg:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="focus:outline-none"
+              className="focus:outline-none p-3"
             >
               <HamburgerButton open={mobileMenuOpen} />
             </button>
@@ -124,12 +124,13 @@ const Navbar = () => {
           {/* Nav Links */}
           <nav className="flex-1 flex flex-col px-7 pt-8 gap-1 overflow-y-auto min-h-0">
             {[
-              { to: "/", label: "Home", num: "01" },
-              { to: "/products", label: "Products", num: "02" },
-              { to: "/about", label: "About", num: "03" },
-              { to: "/contact", label: "Contact", num: "04" },
-              { to: "/IdCardForm", label: "ID Card Form", num: "04" },
-              { to: "/gallery", label: "View my photo", num: "05" },
+              { to: "/", label: "Home" },
+              { to: "/products", label: "Products" },
+              { to: "/IdCardForm", label: "ID Card Form" },
+              { to: "/gallery", label: "View my photo" },
+              { to: "/status", label: "Check Status" },
+              { to: "/about", label: "About" },
+              { to: "/contact", label: "Contact" },
             ].map(({ to, label, num }) => (
               <NavLink
                 key={to}
@@ -137,28 +138,24 @@ const Navbar = () => {
                 onClick={() => setMobileMenuOpen(false)}
                 className={({ isActive }) =>
                   `group flex items-center justify-between py-4 border-b border-black/10
-                   transition-all duration-200 poppins
-                   ${isActive ? "text-black" : "text-zinc-600 hover:text-black"}`
+     transition-all duration-200 poppins
+     ${isActive ? "" : "text-zinc-600 hover:text-black"}`
+                }
+                style={({ isActive }) =>
+                  isActive
+                    ? {
+                        backgroundImage:
+                          "linear-gradient(to bottom right, #FE6E4D, #CC1267)",
+                        WebkitBackgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                        backgroundClip: "text",
+                      }
+                    : {}
                 }
               >
                 {({ isActive }) => (
                   <>
                     <div className="flex items-center gap-3">
-                      <span
-                        className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded transition-all duration-200"
-                        style={{
-                          background: isActive
-                            ? "linear-gradient(to bottom right, #FE6E4D, #CC1267)"
-                            : "transparent",
-                          border: "1px solid",
-                          borderColor: isActive
-                            ? "transparent"
-                            : "rgba(0,0,0,0.15)",
-                          color: isActive ? "white" : "rgba(0,0,0,0.4)",
-                        }}
-                      >
-                        {num}
-                      </span>
                       <span className="text-xl font-semibold">{label}</span>
                     </div>
                     <HiArrowUpRight
