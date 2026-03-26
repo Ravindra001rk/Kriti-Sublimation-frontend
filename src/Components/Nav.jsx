@@ -65,12 +65,12 @@ function OnlineServicesDropdown() {
 
   return (
     <div
-      className="relative font-['Poppins']"
+      className="relative inline-block font-['Poppins'] pn-3"
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
       {/* Trigger */}
-      <button className="relative inline-flex flex-col overflow-hidden h-[1.2em] cursor-pointer uppercase tracking-[0.08em] text-[15px] font-medium group focus:outline-none">
+      <button className="relative bg inline-flex flex-col overflow-hidden h-[1.2em] cursor-pointer uppercase tracking-[0.08em] text-[15px] font-medium group focus:outline-none">
         <span
           style={
             isAnyActive || open
@@ -132,16 +132,16 @@ function OnlineServicesDropdown() {
         pt-3 creates an invisible "bridge" between the trigger and the panel.
         The mouse stays inside the container while crossing — no gap, no flicker.
       */}
-      <div className="absolute top-full left-1/2 -translate-x-1/2 pt-3 w-56 z-50">
-        <div
-          className="w-full bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden transition-all duration-200 origin-top"
-          style={{
-            opacity: open ? 1 : 0,
-            transform: open ? "scaleY(1)" : "scaleY(0.88)",
-            pointerEvents: open ? "auto" : "none",
-          }}
-        >
-          {/* Gradient top strip */}
+      <div
+        className={`absolute top-full left-1/2 -translate-x-1/2 mt-3 w-56 z-50 transition-all duration-200 origin-top ${
+          open
+            ? "opacity-100 scale-y-100 visible"
+            : "opacity-0 scale-y-95 invisible"
+        }`}
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
+      >
+        <div className="w-full bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
           <div className="py-2 px-2">
             {dropdownItems.map(({ to, label }) => {
               const isActive = pathname === to;
@@ -152,7 +152,7 @@ function OnlineServicesDropdown() {
                   className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13px] font-medium uppercase tracking-wide group/item transition-colors duration-150 hover:bg-gray-50"
                 >
                   <span
-                    className="w-1.5 h-1.5 rounded-full flex-shrink-0 transition-all duration-150"
+                    className="w-1.5 h-1.5 rounded-full flex-shrink-0"
                     style={
                       isActive
                         ? { backgroundImage: GRADIENT }
@@ -170,7 +170,7 @@ function OnlineServicesDropdown() {
                           }
                         : {}
                     }
-                    className="text-gray-600 transition-all duration-150 group-hover/item:[background-image:linear-gradient(to_bottom_right,#FE6E4D,#CC1267)] group-hover/item:[background-clip:text] group-hover/item:[-webkit-background-clip:text] group-hover/item:[-webkit-text-fill-color:transparent] font-semibold"
+                    className="text-gray-600 group-hover/item:[background-image:linear-gradient(to_bottom_right,#FE6E4D,#CC1267)] group-hover/item:[background-clip:text] group-hover/item:[-webkit-background-clip:text] group-hover/item:[-webkit-text-fill-color:transparent] font-semibold"
                   >
                     {label}
                   </span>

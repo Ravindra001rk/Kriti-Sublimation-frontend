@@ -112,7 +112,7 @@ const SchoolStaffForm = () => {
 
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/api/school-staff/submit`,
-        { method: "POST", body: fd },
+        { method: "POST", body: fd, credentials: "include" },
       );
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Submission failed");
