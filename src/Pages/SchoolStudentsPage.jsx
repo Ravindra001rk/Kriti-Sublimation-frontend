@@ -38,9 +38,11 @@ const emptyStudent = () => ({
   studentName: "",
   guardianName: "",
   address: "",
+  classGrade: "",
   dateOfBirth: "",
   contactNo: "",
   bloodGroup: "",
+  rollNo: "",
   otherDetails: "",
   photo: null,
   photoPreview: null,
@@ -105,7 +107,7 @@ const AuthModal = ({ onClose, onLogin, onBypass }) => {
   };
 
   return (
-    <div className="fixed inset-0 pt-22 bg-black/50 z-50 flex items-center justify-center px-4">
+    <div className="fixed inset-0 pt-2  2 bg-black/50 z-50 flex items-center justify-center px-4">
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -384,12 +386,11 @@ const StudentCard = ({
               </div>
 
               <Field
-                label="School's Name"
+                label="School Name"
                 name="schoolName"
                 value={student.schoolName}
                 onChange={handleField}
-                required
-                placeholder="e.g. School Name"
+                placeholder="Only for individual applicants"
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -413,12 +414,19 @@ const StudentCard = ({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Field
+                  label="Class/Grade"
+                  name="classGrade"
+                  value={student.classGrade}
+                  onChange={handleField}
+                  placeholder="e.g. LKG 'A', Grade 5, etc."
+                />
+                <Field
                   label="Date of Birth"
                   name="dateOfBirth"
                   value={student.dateOfBirth}
                   onChange={handleField}
-                  required
-                  type="date"
+                  type="text"
+                  placeholder="Date of Birth"
                 />
                 <Field
                   label="Contact No"
@@ -432,7 +440,17 @@ const StudentCard = ({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+                <Field
+                  label="Roll No"
+                  name="rollNo"
+                  value={student.rollNo}
+                  onChange={handleField}
+                  placeholder="e.g. A-101 (optional)"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">
                     Blood Group
                   </label>
@@ -451,7 +469,7 @@ const StudentCard = ({
                       ),
                     )}
                   </select>
-                </div>
+                </div> */}
                 <Field
                   label="Address"
                   name="address"
@@ -510,12 +528,7 @@ const SchoolStudentsPage = () => {
 
   // Validate last student is complete before adding new one
   const isStudentComplete = (s) =>
-    s.studentName &&
-    s.guardianName &&
-    s.address &&
-    s.contactNo &&
-    s.dateOfBirth &&
-    s.photo;
+    s.studentName && s.guardianName && s.address && s.contactNo && s.photo;
 
   const addStudent = () => {
     const last = students[students.length - 1];
@@ -563,9 +576,11 @@ const SchoolStudentsPage = () => {
         fd.append("studentName", student.studentName);
         fd.append("guardianName", student.guardianName);
         fd.append("address", student.address);
+        fd.append("classGrade", student.classGrade);
         fd.append("dateOfBirth", student.dateOfBirth);
         fd.append("contactNo", student.contactNo);
         fd.append("bloodGroup", student.bloodGroup);
+        fd.append("rollNo", student.rollNo);
         fd.append("otherDetails", student.otherDetails);
         fd.append("photo", student.photo);
 

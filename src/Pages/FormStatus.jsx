@@ -172,6 +172,7 @@ const FormStatus = () => {
         contactNo: data.contactNo || "",
         dateOfBirth: data.dateOfBirth || "",
         rollNo: data.rollNo || "",
+        classGrade: data.classGrade || "",
         otherDetails: data.otherDetails || "",
       });
     }
@@ -295,6 +296,7 @@ const FormStatus = () => {
             ["Contact No", data.contactNo],
             ["Date of Birth", data.dateOfBirth],
             ["Roll No", data.rollNo],
+            ["Class/Grade", data.classGrade],
           ]}
         />
       );

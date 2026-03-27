@@ -282,6 +282,11 @@ const SubmissionCard = ({ submission }) => {
                   ["Organisation", orgName],
                   ["Contact No", submission.contactNo],
                   ["Status", submission.status],
+                  submission.type === "school" &&
+                    submission.classGrade && [
+                      "Class/Grade",
+                      submission.classGrade,
+                    ],
                   submission.rejectionReason && [
                     "Rejection Reason",
                     submission.rejectionReason,

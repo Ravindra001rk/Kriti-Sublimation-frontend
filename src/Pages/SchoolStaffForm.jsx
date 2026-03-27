@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import imageCompression from "browser-image-compression";
-import Test from "./Test";
 
 // ── Outside component to prevent re-mount on keystroke ──
 const Field = ({
@@ -285,7 +284,7 @@ const SchoolStaffForm = () => {
               name="schoolName"
               value={form.schoolName}
               onChange={handleChange}
-              required
+              // required
               placeholder="e.g. Organization's Name"
             />
 
@@ -350,7 +349,7 @@ const SchoolStaffForm = () => {
                 </select>
               </div>
               <Field
-                label="Permanent Address"
+                label="Address"
                 name="permanentAddress"
                 value={form.permanentAddress}
                 onChange={handleChange}

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import React from "react";
-import { logo } from "../assets/frontend_assets";
+import * as XLSX from "xlsx";
 
 const API =
   window.location.hostname === "localhost" ||
@@ -136,7 +136,7 @@ function LoginPage({ onLogin }) {
   );
 }
 
-// ─── DESKTOP SIDEBAR ──────────────────────────────────────────────────────────
+// ─── SIDEBAR ──────────────────────────────────────────────────────────────────
 function Sidebar({ tab, setTab, onLogout, pendingCount }) {
   const items = [
     {
@@ -165,9 +165,19 @@ function Sidebar({ tab, setTab, onLogout, pendingCount }) {
       icon: "M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2",
     },
     {
+      id: "school",
+      label: "School",
+      icon: "M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222",
+    },
+    {
       id: "settings",
       label: "Settings",
       icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z",
+    },
+    {
+      id: "users",
+      label: "Users",
+      icon: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z",
     },
   ];
 
@@ -243,6 +253,7 @@ function MobileTopBar({ tab, onLogout, setTab }) {
     manage: "Manage",
     products: "Products",
     idcards: "ID Cards",
+    school: "School",
   };
   return (
     <div className="md:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200 shadow-sm sticky top-0 z-10">
@@ -267,7 +278,6 @@ function MobileTopBar({ tab, onLogout, setTab }) {
         </div>
         <span className="font-bold text-gray-900 text-sm">{titles[tab]}</span>
       </div>
-
       <div className="flex items-center gap-3">
         <button
           onClick={() => setTab("settings")}
@@ -329,15 +339,10 @@ function MobileBottomNav({ tab, setTab }) {
       label: "ID Cards",
       icon: "M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2",
     },
-    // {
-    //   id: "settings",
-    //   label: "Settings",
-    //   icon: "M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z",
-    // },
     {
-      id: "products",
-      label: "Products",
-      icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4",
+      id: "school",
+      label: "School",
+      icon: "M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222",
     },
     {
       id: "manage",
@@ -617,14 +622,12 @@ function GalleryTab() {
               key={photo._id}
               className="bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-md transition-all shadow-sm"
             >
-              <div className="relative group">
-                <img
-                  src={photo.imageUrl}
-                  alt="photo"
-                  className="w-full h-46 sm:h-54 object-cover object-top cursor-pointer"
-                  onClick={() => window.open(photo.imageUrl, "_blank")}
-                />
-              </div>
+              <img
+                src={photo.imageUrl}
+                alt="photo"
+                className="w-full h-40 object-cover object-top cursor-pointer"
+                onClick={() => window.open(photo.imageUrl, "_blank")}
+              />
               <div className="p-2.5 sm:p-3">
                 {editId === photo._id ? (
                   <div className="flex gap-1.5 mb-2">
@@ -636,7 +639,7 @@ function GalleryTab() {
                           e.target.value.replace(/\D/, "").slice(0, 10),
                         )
                       }
-                      className="flex-1 bg-brandBg-50 border border-gray-200 rounded-lg px-2 py-1.5 text-gray-900 text-xs outline-none focus:border-violet-400 min-w-0"
+                      className="flex-1 border border-gray-200 rounded-lg px-2 py-1.5 text-gray-900 text-xs outline-none focus:border-violet-400 min-w-0"
                     />
                     <button
                       onClick={() => handleUpdate(photo._id)}
@@ -778,71 +781,1622 @@ function SettingsTab() {
   );
 }
 
-// ─── DASHBOARD ────────────────────────────────────────────────────────────────
-function Dashboard({ onLogout }) {
-  const [tab, setTab] = useState("upload");
-  const [pendingCount, setPendingCount] = useState(0);
+// ─── ID CARD TAB ──────────────────────────────────────────────────────────────
+function IDCardTab({ onStatusChange }) {
+  const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [expanded, setExpanded] = useState(null);
+  const [statusForm, setStatusForm] = useState({});
+  const [saving, setSaving] = useState(null);
+  const [saveSuccess, setSaveSuccess] = useState(null);
+  const [smsSending, setSmsSending] = useState(null);
+  const [smsSuccess, setSmsSuccess] = useState(null);
 
-  const refreshPendingCount = () => {
-    fetch(`${API}/api/id-applications/all?type=office&status=Pending`, {
-      credentials: "include",
-    })
-      .then((r) => r.json())
-      .then((data) => Array.isArray(data) && setPendingCount(data.length))
-      .catch(() => {});
+  const statuses = [
+    "Pending",
+    "Approved",
+    "Rejected",
+    "Printing",
+    "Ready for Collection",
+  ];
+  const statusColors = {
+    Pending: "bg-yellow-100 text-yellow-700",
+    Approved: "bg-blue-100 text-blue-700",
+    Rejected: "bg-red-100 text-red-700",
+    Printing: "bg-purple-100 text-purple-700",
+    "Ready for Collection": "bg-green-100 text-green-700",
+  };
+  const statusIcons = {
+    Pending: "⏳",
+    Approved: "✅",
+    Rejected: "❌",
+    Printing: "🖨️",
+    "Ready for Collection": "🎉",
+  };
+
+  const fetchApplications = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (filterStatus) params.append("status", filterStatus);
+      params.append("type", "office");
+      if (search) params.append("search", search);
+      const res = await fetch(`${API}/api/id-applications/all?${params}`, {
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setApplications(data);
+        const forms = {};
+        data.forEach((app) => {
+          forms[app._id] = {
+            status: app.status,
+            rejectionReason: app.rejectionReason || "",
+            estimatedDate: app.estimatedDate
+              ? app.estimatedDate.split("T")[0]
+              : "",
+            adminNotes: app.adminNotes || "",
+          };
+        });
+        setStatusForm(forms);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    refreshPendingCount();
-  }, []);
+    fetchApplications();
+  }, [filterStatus]);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    fetchApplications();
+  };
+  const handleFormChange = (id, field, value) =>
+    setStatusForm((prev) => ({
+      ...prev,
+      [id]: { ...prev[id], [field]: value },
+    }));
+
+  const handleSaveStatus = async (app) => {
+    const f = statusForm[app._id];
+    if (f.status === "Rejected" && !f.rejectionReason.trim()) {
+      alert("Please enter rejection reason");
+      return;
+    }
+    setSaving(app._id);
+    setSaveSuccess(null);
+    try {
+      const res = await fetch(`${API}/api/id-applications/${app._id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          status: f.status,
+          rejectionReason: f.rejectionReason,
+          estimatedDate: f.estimatedDate,
+          adminNotes: f.adminNotes,
+        }),
+      });
+      if (res.ok) {
+        setSaveSuccess(app._id);
+        await fetchApplications();
+        onStatusChange();
+        setTimeout(() => setSaveSuccess(null), 2000);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  const handleSendSMS = async (id) => {
+    setSmsSending(id);
+    setSmsSuccess(null);
+    try {
+      const res = await fetch(`${API}/api/id-applications/${id}/send-sms`, {
+        method: "POST",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSmsSuccess(id);
+        setTimeout(() => setSmsSuccess(null), 2000);
+      } else alert(data.message);
+    } catch {
+      alert("SMS failed");
+    } finally {
+      setSmsSending(null);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm("Delete this application? This cannot be undone.")) return;
+    try {
+      const res = await fetch(`${API}/api/id-applications/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) {
+        setApplications((prev) => prev.filter((a) => a._id !== id));
+        setExpanded(null);
+        onStatusChange();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const pendingCount = applications.filter(
+    (a) => a.status === "Pending",
+  ).length;
 
   return (
-    <div className="flex min-h-[calc(100dvh-4rem)] lg:min-h-[calc(100dvh-4rem)] bg-gray-50">
-      <Sidebar
-        tab={tab}
-        setTab={setTab}
-        onLogout={onLogout}
-        pendingCount={pendingCount}
-      />
-      <div className="flex-1 flex flex-col min-w-0">
-        <MobileTopBar tab={tab} onLogout={onLogout} setTab={setTab} />
-        <main className="flex-1 p-4 sm:p-6 md:p-8 pb-24 md:pb-8 overflow-auto">
-          {tab === "upload" && <UploadTab />}
-          {tab === "gallery" && <GalleryTab />}
-          {tab === "settings" && <SettingsTab />}
-          {tab === "products" && <ProductsTab />}
-          {tab === "manage" && <ManageTab />}
-          {tab === "idcards" && (
-            <IDCardTab onStatusChange={refreshPendingCount} />
-          )}
-        </main>
+    <div className="w-full">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+        <div>
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 flex items-center gap-2">
+            Office ID Card Applications
+            {pendingCount > 0 && (
+              <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                {pendingCount} pending
+              </span>
+            )}
+          </h2>
+          <p className="text-gray-500 text-sm">{applications.length} total</p>
+        </div>
       </div>
-      <MobileBottomNav tab={tab} setTab={setTab} />
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <form onSubmit={handleSearch} className="flex gap-2 flex-1">
+          <input
+            type="text"
+            placeholder="Search by name or submission ID..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-violet-400 transition-colors placeholder-gray-400 shadow-sm"
+          />
+          <button
+            type="submit"
+            className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white shadow-sm"
+            style={{ background: "linear-gradient(135deg, #7c3aed, #db2777)" }}
+          >
+            Search
+          </button>
+        </form>
+        <select
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+          className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-violet-400 shadow-sm"
+        >
+          <option value="">All Statuses</option>
+          {statuses.map((s) => (
+            <option key={s} value={s}>
+              {s}
+            </option>
+          ))}
+        </select>
+      </div>
+      {loading ? (
+        <p className="text-gray-400 animate-pulse">Loading...</p>
+      ) : applications.length === 0 ? (
+        <div className="text-center py-20">
+          <p className="text-gray-400">No applications found</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {applications.map((app) => (
+            <div
+              key={app._id}
+              className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden"
+            >
+              <div
+                className="flex items-center gap-4 p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+                onClick={() =>
+                  setExpanded(expanded === app._id ? null : app._id)
+                }
+              >
+                <img
+                  src={app.photo}
+                  alt="photo"
+                  className="w-10 h-12 object-cover rounded-lg border border-gray-100 flex-shrink-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(app.photo, "_blank");
+                  }}
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-sm font-semibold text-gray-900 truncate">
+                      {app.employeeName}
+                    </p>
+                    <span className="text-xs text-gray-400 font-mono">
+                      {app.submissionId}
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-400 mt-0.5">
+                    {app.officeName} •{" "}
+                    {new Date(app.createdAt).toLocaleDateString("en-NP")}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <span
+                    className={`text-xs font-semibold px-3 py-1 rounded-full ${statusColors[app.status] || "bg-gray-100 text-gray-700"}`}
+                  >
+                    {statusIcons[app.status]} {app.status}
+                  </span>
+                  <svg
+                    className={`w-4 h-4 text-gray-400 transition-transform ${expanded === app._id ? "rotate-180" : ""}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </div>
+              </div>
+              {expanded === app._id && (
+                <div className="border-t border-gray-100 p-4 space-y-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+                        Details
+                      </p>
+                      <div className="flex gap-3 mb-3">
+                        <div>
+                          <p className="text-xs text-gray-400 mb-1">Photo</p>
+                          <img
+                            src={app.photo}
+                            alt="photo"
+                            className="w-16 h-20 object-cover rounded-xl border border-gray-200 cursor-pointer shadow-sm"
+                            onClick={() => window.open(app.photo, "_blank")}
+                          />
+                        </div>
+                        {app.sign && (
+                          <div>
+                            <p className="text-xs text-gray-400 mb-1">Sign</p>
+                            <img
+                              src={app.sign}
+                              alt="sign"
+                              className="w-16 h-20 object-cover rounded-xl border border-gray-200 cursor-pointer shadow-sm"
+                              onClick={() => window.open(app.sign, "_blank")}
+                            />
+                          </div>
+                        )}
+                      </div>
+                      {[
+                        ["Submission ID", app.submissionId],
+                        ["Office", app.officeName],
+                        ["Employee Name", app.employeeName],
+                        ["Name (Nepali)", app.employeeNameNepali],
+                        ["Designation", app.designation],
+                        ["Designation (Nepali)", app.designationNepali],
+                        ["Citizenship No", app.citizenshipNo],
+                        ["Contact", app.contactNo],
+                        ["Blood Group", app.bloodGroup],
+                        ["PIS No", app.pisNo],
+                        ["Permanent Address", app.permanentAddress],
+                        ["Address (Nepali)", app.permanentAddressNepali],
+                        ["Other Details", app.otherDetails],
+                        [
+                          "Submitted",
+                          new Date(app.createdAt).toLocaleString("en-NP"),
+                        ],
+                      ]
+                        .filter(([, v]) => v)
+                        .map(([label, value]) => (
+                          <div key={label} className="flex gap-2 text-sm">
+                            <span className="text-gray-400 w-36 flex-shrink-0">
+                              {label}:
+                            </span>
+                            <span className="text-gray-800 font-medium">
+                              {value}
+                            </span>
+                          </div>
+                        ))}
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+                        Update Status
+                      </p>
+                      {statusForm[app._id] && (
+                        <div className="space-y-3">
+                          <div>
+                            <label className="text-xs font-semibold text-gray-500 block mb-1">
+                              Status
+                            </label>
+                            <select
+                              value={statusForm[app._id].status}
+                              onChange={(e) =>
+                                handleFormChange(
+                                  app._id,
+                                  "status",
+                                  e.target.value,
+                                )
+                              }
+                              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-violet-400 transition-colors"
+                            >
+                              {statuses.map((s) => (
+                                <option key={s} value={s}>
+                                  {statusIcons[s]} {s}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          {statusForm[app._id].status === "Rejected" && (
+                            <div>
+                              <label className="text-xs font-semibold text-red-500 block mb-1">
+                                Rejection Reason *
+                              </label>
+                              <textarea
+                                value={statusForm[app._id].rejectionReason}
+                                onChange={(e) =>
+                                  handleFormChange(
+                                    app._id,
+                                    "rejectionReason",
+                                    e.target.value,
+                                  )
+                                }
+                                rows={2}
+                                placeholder="Enter reason..."
+                                className="w-full bg-white border border-red-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-red-400 transition-colors resize-none"
+                              />
+                            </div>
+                          )}
+                          <div>
+                            <label className="text-xs font-semibold text-gray-500 block mb-1">
+                              Estimated Collection Date
+                            </label>
+                            <input
+                              type="date"
+                              value={statusForm[app._id].estimatedDate}
+                              onChange={(e) =>
+                                handleFormChange(
+                                  app._id,
+                                  "estimatedDate",
+                                  e.target.value,
+                                )
+                              }
+                              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-violet-400 transition-colors"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs font-semibold text-gray-500 block mb-1">
+                              Admin Notes (internal)
+                            </label>
+                            <textarea
+                              value={statusForm[app._id].adminNotes}
+                              onChange={(e) =>
+                                handleFormChange(
+                                  app._id,
+                                  "adminNotes",
+                                  e.target.value,
+                                )
+                              }
+                              rows={2}
+                              placeholder="Internal notes..."
+                              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-violet-400 transition-colors resize-none"
+                            />
+                          </div>
+                          {app.statusTimeline &&
+                            app.statusTimeline.length > 0 && (
+                              <div>
+                                <label className="text-xs font-semibold text-gray-500 block mb-2">
+                                  Timeline
+                                </label>
+                                <div className="space-y-1.5 max-h-32 overflow-y-auto">
+                                  {[...app.statusTimeline]
+                                    .reverse()
+                                    .map((item, i) => (
+                                      <div
+                                        key={i}
+                                        className="flex items-start gap-2 text-xs"
+                                      >
+                                        <span>
+                                          {statusIcons[item.status] || "•"}
+                                        </span>
+                                        <div>
+                                          <span className="font-semibold text-gray-700">
+                                            {item.status}
+                                          </span>
+                                          <span className="text-gray-400 ml-1">
+                                            {new Date(
+                                              item.changedAt,
+                                            ).toLocaleString("en-NP")}
+                                          </span>
+                                          {item.note && (
+                                            <p className="text-gray-500">
+                                              {item.note}
+                                            </p>
+                                          )}
+                                        </div>
+                                      </div>
+                                    ))}
+                                </div>
+                              </div>
+                            )}
+                          <button
+                            onClick={() => handleSaveStatus(app)}
+                            disabled={saving === app._id}
+                            className="w-full py-3 rounded-xl text-sm font-semibold text-white shadow-md transition-all hover:opacity-90 active:scale-95 disabled:opacity-50"
+                            style={{
+                              background:
+                                "linear-gradient(135deg, #7c3aed, #db2777)",
+                            }}
+                          >
+                            {saving === app._id
+                              ? "Saving..."
+                              : saveSuccess === app._id
+                                ? "✓ Saved!"
+                                : "Save Status"}
+                          </button>
+                          <button
+                            onClick={() => handleSendSMS(app._id)}
+                            disabled={smsSending === app._id}
+                            className="w-full py-3 rounded-xl text-sm font-semibold text-white bg-green-500 hover:bg-green-600 transition disabled:opacity-50"
+                          >
+                            {smsSending === app._id
+                              ? "Sending..."
+                              : smsSuccess === app._id
+                                ? "✓ SMS Sent!"
+                                : "📱 Send SMS"}
+                          </button>
+                          <button
+                            onClick={() => handleDelete(app._id)}
+                            className="w-full py-3 rounded-xl text-sm font-semibold text-red-500 bg-red-50 hover:bg-red-100 transition"
+                          >
+                            🗑️ Delete Application
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
-// ─── ROOT ─────────────────────────────────────────────────────────────────────
-export default function AdminPanel() {
-  const [authed, setAuthed] = useAuth();
+// ─── SCHOOL TAB ───────────────────────────────────────────────────────────────
+function SchoolTab() {
+  const [subTab, setSubTab] = useState("students"); // "students" | "staff"
 
-  const handleLogout = async () => {
-    await fetch(`${API}/api/admin/logout`, {
-      method: "POST",
-      credentials: "include",
-    });
-    setAuthed(false);
+  return (
+    <div className="w-full">
+      <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-4">
+        School Applications
+      </h2>
+      <div className="flex gap-2 mb-6">
+        {["students", "staff"].map((t) => (
+          <button
+            key={t}
+            onClick={() => setSubTab(t)}
+            className={`px-5 py-2 rounded-xl text-sm font-semibold transition-all ${
+              subTab === t
+                ? "text-white"
+                : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+            }`}
+            style={
+              subTab === t
+                ? { background: "linear-gradient(135deg, #7c3aed, #db2777)" }
+                : {}
+            }
+          >
+            {t === "students" ? "🎒 Students" : "👨‍🏫 Staff"}
+          </button>
+        ))}
+      </div>
+      {subTab === "students" ? <SchoolStudentsTab /> : <SchoolStaffTab />}
+    </div>
+  );
+}
+
+// ─── SCHOOL STUDENTS TAB ──────────────────────────────────────────────────────
+function SchoolStudentsTab() {
+  const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [filterSchool, setFilterSchool] = useState("");
+  const [expanded, setExpanded] = useState(null);
+  const [statusForm, setStatusForm] = useState({});
+  const [saving, setSaving] = useState(null);
+  const [saveSuccess, setSaveSuccess] = useState(null);
+  const [smsSending, setSmsSending] = useState(null);
+  const [smsSuccess, setSmsSuccess] = useState(null);
+  const [photoViewer, setPhotoViewer] = useState(null);
+
+  const statuses = [
+    "Pending",
+    "Approved",
+    "Rejected",
+    "Printing",
+    "Ready for Collection",
+  ];
+  const statusColors = {
+    Pending: "bg-yellow-100 text-yellow-700",
+    Approved: "bg-blue-100 text-blue-700",
+    Rejected: "bg-red-100 text-red-700",
+    Printing: "bg-purple-100 text-purple-700",
+    "Ready for Collection": "bg-green-100 text-green-700",
+  };
+  const statusIcons = {
+    Pending: "⏳",
+    Approved: "✅",
+    Rejected: "❌",
+    Printing: "🖨️",
+    "Ready for Collection": "🎉",
   };
 
-  if (authed === null)
-    return (
-      <div className="min-h-[calc(100dvh-4rem)] lg:min-h-[calc(100dvh-4rem)] flex items-center justify-center bg-brandBg">
-        <div className="w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+  const fetchApplications = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (filterStatus) params.append("status", filterStatus);
+      if (filterSchool) params.append("schoolName", filterSchool);
+      if (search) params.append("search", search);
+      const res = await fetch(`${API}/api/school-applications/all?${params}`, {
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setApplications(data);
+        const forms = {};
+        data.forEach((app) => {
+          forms[app._id] = {
+            status: app.status,
+            rejectionReason: app.rejectionReason || "",
+            estimatedDate: app.estimatedDate
+              ? app.estimatedDate.split("T")[0]
+              : "",
+            adminNotes: app.adminNotes || "",
+          };
+        });
+        setStatusForm(forms);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  if (!authed) return <LoginPage onLogin={() => setAuthed(true)} />;
-  return <Dashboard onLogout={handleLogout} />;
+  useEffect(() => {
+    fetchApplications();
+  }, [filterStatus, filterSchool]);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    fetchApplications();
+  };
+  const handleFormChange = (id, field, value) =>
+    setStatusForm((prev) => ({
+      ...prev,
+      [id]: { ...prev[id], [field]: value },
+    }));
+
+  const handleSaveStatus = async (app) => {
+    const f = statusForm[app._id];
+    if (f.status === "Rejected" && !f.rejectionReason.trim()) {
+      alert("Please enter rejection reason");
+      return;
+    }
+    setSaving(app._id);
+    setSaveSuccess(null);
+    try {
+      const res = await fetch(
+        `${API}/api/school-applications/${app._id}/status`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            status: f.status,
+            rejectionReason: f.rejectionReason,
+            estimatedDate: f.estimatedDate,
+            adminNotes: f.adminNotes,
+          }),
+        },
+      );
+      if (res.ok) {
+        setSaveSuccess(app._id);
+        await fetchApplications();
+        setTimeout(() => setSaveSuccess(null), 2000);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  const handleSendSMS = async (id) => {
+    setSmsSending(id);
+    setSmsSuccess(null);
+    try {
+      const res = await fetch(`${API}/api/school-applications/${id}/send-sms`, {
+        method: "POST",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSmsSuccess(id);
+        setTimeout(() => setSmsSuccess(null), 2000);
+      } else alert(data.message);
+    } catch {
+      alert("SMS failed");
+    } finally {
+      setSmsSending(null);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm("Delete this application?")) return;
+    try {
+      const res = await fetch(`${API}/api/school-applications/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) {
+        setApplications((prev) => prev.filter((a) => a._id !== id));
+        setExpanded(null);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Group by school name
+  const grouped = applications.reduce((acc, app) => {
+    const key = app.schoolName || "No School (Guest)";
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(app);
+    return acc;
+  }, {});
+
+  const uniqueSchools = [
+    ...new Set(applications.map((a) => a.schoolName).filter(Boolean)),
+  ];
+
+  // Export to Excel
+  const exportToExcel = (schoolName, apps) => {
+    const data = apps.map((app, i) => ({
+      "S.N.": i + 1,
+      "Photo No.": app.photo ? app.photo.split("/").pop() : "",
+      "Submission ID": app.submissionId,
+      "School Name": app.schoolName || "",
+      "Student Name": app.studentName,
+      "Guardian Name": app.guardianName,
+      Class: app.classGrade || "",
+      Address: app.address,
+      "Contact No": app.contactNo,
+      "Date of Birth": app.dateOfBirth || "",
+      "Roll No": app.rollNo || "",
+      Status: app.status,
+      Submitted: new Date(app.createdAt).toLocaleDateString(),
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Students");
+    XLSX.writeFile(wb, `${schoolName}-students.xlsx`);
+  };
+
+  return (
+    <div className="w-full">
+      {/* Filters */}
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <form onSubmit={handleSearch} className="flex gap-2 flex-1">
+          <input
+            type="text"
+            placeholder="Search by name, ID, contact..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-violet-400 placeholder-gray-400 shadow-sm"
+          />
+          <button
+            type="submit"
+            className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white shadow-sm"
+            style={{ background: "linear-gradient(135deg, #7c3aed, #db2777)" }}
+          >
+            Search
+          </button>
+        </form>
+        <select
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+          className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-violet-400 shadow-sm"
+        >
+          <option value="">All Statuses</option>
+          {statuses.map((s) => (
+            <option key={s} value={s}>
+              {s}
+            </option>
+          ))}
+        </select>
+        <select
+          value={filterSchool}
+          onChange={(e) => setFilterSchool(e.target.value)}
+          className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-violet-400 shadow-sm"
+        >
+          <option value="">All Schools</option>
+          {uniqueSchools.map((s) => (
+            <option key={s} value={s}>
+              {s}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {loading ? (
+        <p className="text-gray-400 animate-pulse">Loading...</p>
+      ) : applications.length === 0 ? (
+        <div className="text-center py-20">
+          <p className="text-gray-400">No applications found</p>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {Object.entries(grouped).map(([schoolName, apps]) => (
+            <div
+              key={schoolName}
+              className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden"
+            >
+              {/* School Header */}
+              <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-violet-50 to-pink-50 border-b border-gray-100">
+                <div>
+                  <h3 className="font-bold text-gray-900">{schoolName}</h3>
+                  <p className="text-xs text-gray-500">
+                    {apps.length} student{apps.length !== 1 ? "s" : ""}
+                  </p>
+                </div>
+                <button
+                  onClick={() => exportToExcel(schoolName, apps)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-green-700 bg-green-100 hover:bg-green-200 transition"
+                >
+                  📊 Export Excel
+                </button>
+              </div>
+
+              {/* Applications */}
+              <div className="divide-y divide-gray-50">
+                {apps.map((app) => (
+                  <div key={app._id}>
+                    <div
+                      className="flex items-center gap-4 px-5 py-3 cursor-pointer hover:bg-gray-50 transition-colors"
+                      onClick={() =>
+                        setExpanded(expanded === app._id ? null : app._id)
+                      }
+                    >
+                      <img
+                        src={app.photo}
+                        alt="photo"
+                        className="w-9 h-11 object-cover rounded-lg border border-gray-100 flex-shrink-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(app.photo, "_blank");
+                        }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 truncate">
+                          {app.studentName}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {app.submissionId} •{" "}
+                          {new Date(app.createdAt).toLocaleDateString("en-NP")}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <span
+                          className={`text-xs font-semibold px-3 py-1 rounded-full ${statusColors[app.status] || "bg-gray-100 text-gray-700"}`}
+                        >
+                          {statusIcons[app.status]} {app.status}
+                        </span>
+                        <svg
+                          className={`w-4 h-4 text-gray-400 transition-transform ${expanded === app._id ? "rotate-180" : ""}`}
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+
+                    {expanded === app._id && (
+                      <div className="border-t border-gray-100 px-5 py-4 bg-gray-50">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                          {/* Details */}
+                          <div>
+                            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+                              Details
+                            </p>
+                            <div className="flex gap-3 mb-3">
+                              <img
+                                src={app.photo}
+                                alt="photo"
+                                className="w-16 h-20 object-cover rounded-xl border border-gray-200 cursor-pointer shadow-sm hover:opacity-75 transition"
+                                onClick={() => setPhotoViewer(app)}
+                                title="Click to view full size"
+                              />
+                            </div>
+                            {[
+                              ["Submission ID", app.submissionId],
+                              ["Student Name", app.studentName],
+                              ["Guardian Name", app.guardianName],
+                              ["School Name", app.schoolName],
+                              ["Class/Grade", app.classGrade],
+                              ["Address", app.address],
+                              ["Contact No", app.contactNo],
+                              ["Date of Birth", app.dateOfBirth],
+                              ["Roll No", app.rollNo],
+                              [
+                                "Submitted",
+                                new Date(app.createdAt).toLocaleString("en-NP"),
+                              ],
+                            ]
+                              .filter(([, v]) => v)
+                              .map(([label, value]) => (
+                                <div key={label} className="flex gap-2 text-sm">
+                                  <span className="text-gray-400 w-32 flex-shrink-0">
+                                    {label}:
+                                  </span>
+                                  <span className="text-gray-800 font-medium">
+                                    {value}
+                                  </span>
+                                </div>
+                              ))}
+                          </div>
+
+                          {/* Status Management */}
+                          <div>
+                            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+                              Update Status
+                            </p>
+                            {statusForm[app._id] && (
+                              <div className="space-y-3">
+                                <select
+                                  value={statusForm[app._id].status}
+                                  onChange={(e) =>
+                                    handleFormChange(
+                                      app._id,
+                                      "status",
+                                      e.target.value,
+                                    )
+                                  }
+                                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-violet-400"
+                                >
+                                  {statuses.map((s) => (
+                                    <option key={s} value={s}>
+                                      {statusIcons[s]} {s}
+                                    </option>
+                                  ))}
+                                </select>
+                                {statusForm[app._id].status === "Rejected" && (
+                                  <textarea
+                                    value={statusForm[app._id].rejectionReason}
+                                    onChange={(e) =>
+                                      handleFormChange(
+                                        app._id,
+                                        "rejectionReason",
+                                        e.target.value,
+                                      )
+                                    }
+                                    rows={2}
+                                    placeholder="Rejection reason..."
+                                    className="w-full bg-white border border-red-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none resize-none"
+                                  />
+                                )}
+                                <input
+                                  type="date"
+                                  value={statusForm[app._id].estimatedDate}
+                                  onChange={(e) =>
+                                    handleFormChange(
+                                      app._id,
+                                      "estimatedDate",
+                                      e.target.value,
+                                    )
+                                  }
+                                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-violet-400"
+                                />
+                                <textarea
+                                  value={statusForm[app._id].adminNotes}
+                                  onChange={(e) =>
+                                    handleFormChange(
+                                      app._id,
+                                      "adminNotes",
+                                      e.target.value,
+                                    )
+                                  }
+                                  rows={2}
+                                  placeholder="Admin notes (internal)..."
+                                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none resize-none"
+                                />
+
+                                {app.statusTimeline &&
+                                  app.statusTimeline.length > 0 && (
+                                    <div className="space-y-1 max-h-24 overflow-y-auto">
+                                      {[...app.statusTimeline]
+                                        .reverse()
+                                        .map((item, i) => (
+                                          <div
+                                            key={i}
+                                            className="flex gap-2 text-xs"
+                                          >
+                                            <span>
+                                              {statusIcons[item.status] || "•"}
+                                            </span>
+                                            <span className="font-semibold text-gray-700">
+                                              {item.status}
+                                            </span>
+                                            <span className="text-gray-400">
+                                              {new Date(
+                                                item.changedAt,
+                                              ).toLocaleString("en-NP")}
+                                            </span>
+                                          </div>
+                                        ))}
+                                    </div>
+                                  )}
+
+                                <button
+                                  onClick={() => handleSaveStatus(app)}
+                                  disabled={saving === app._id}
+                                  className="w-full py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50"
+                                  style={{
+                                    background:
+                                      "linear-gradient(135deg, #7c3aed, #db2777)",
+                                  }}
+                                >
+                                  {saving === app._id
+                                    ? "Saving..."
+                                    : saveSuccess === app._id
+                                      ? "✓ Saved!"
+                                      : "Save Status"}
+                                </button>
+                                <button
+                                  onClick={() => handleSendSMS(app._id)}
+                                  disabled={smsSending === app._id}
+                                  className="w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-green-500 hover:bg-green-600 transition disabled:opacity-50"
+                                >
+                                  {smsSending === app._id
+                                    ? "Sending..."
+                                    : smsSuccess === app._id
+                                      ? "✓ SMS Sent!"
+                                      : "📱 Send SMS"}
+                                </button>
+                                <button
+                                  onClick={() => handleDelete(app._id)}
+                                  className="w-full py-2.5 rounded-xl text-sm font-semibold text-red-500 bg-red-50 hover:bg-red-100 transition"
+                                >
+                                  🗑️ Delete
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Photo Viewer Modal */}
+      {photoViewer && (
+        <div
+          className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4"
+          onClick={() => setPhotoViewer(null)}
+        >
+          <div
+            className="bg-white rounded-2xl overflow-hidden shadow-2xl max-w-2xl w-full flex flex-col max-h-[90vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="p-4 sm:p-5 border-b border-gray-200 flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-gray-900 text-lg">
+                  {photoViewer.studentName}
+                </h3>
+                <p className="text-xs text-gray-500 mt-1">
+                  ID: {photoViewer.submissionId}
+                </p>
+              </div>
+              <button
+                onClick={() => setPhotoViewer(null)}
+                className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="overflow-y-auto flex-1 p-4 sm:p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Photo */}
+                <div className="flex flex-col items-center">
+                  <img
+                    src={photoViewer.photo}
+                    alt={photoViewer.studentName}
+                    className="w-full max-w-sm h-auto rounded-xl border border-gray-200 shadow-md object-cover"
+                  />
+                  <button
+                    onClick={() => window.open(photoViewer.photo, "_blank")}
+                    className="mt-3 text-xs text-blue-600 hover:text-blue-700 font-medium underline"
+                  >
+                    Open in new tab →
+                  </button>
+                </div>
+
+                {/* Details */}
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs font-semibold text-gray-500 uppercase mb-1">
+                      Student Information
+                    </p>
+                    <div className="space-y-2">
+                      {[
+                        ["Student Name", photoViewer.studentName],
+                        ["Guardian Name", photoViewer.guardianName],
+                        ["School Name", photoViewer.schoolName],
+                        ["Roll No", photoViewer.rollNo],
+                        ["Class/Grade", photoViewer.classGrade],
+                        ["Contact No", photoViewer.contactNo],
+                        ["Date of Birth", photoViewer.dateOfBirth],
+                        ["Address", photoViewer.address],
+                        ["Blood Group", photoViewer.bloodGroup],
+                      ]
+                        .filter(([, v]) => v)
+                        .map(([label, value]) => (
+                          <div key={label} className="flex justify-between">
+                            <span className="text-xs text-gray-500">
+                              {label}
+                            </span>
+                            <span className="text-xs font-medium text-gray-800">
+                              {value}
+                            </span>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-3">
+                    <p className="text-xs font-semibold text-gray-500 uppercase mb-2">
+                      Submission Details
+                    </p>
+                    <div className="space-y-2 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Submission ID</span>
+                        <span className="font-mono font-medium">
+                          {photoViewer.submissionId}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Status</span>
+                        <span
+                          className={`font-medium px-2 py-0.5 rounded-full ${statusColors[photoViewer.status] || "bg-gray-100"}`}
+                        >
+                          {statusIcons[photoViewer.status]} {photoViewer.status}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Submitted</span>
+                        <span className="text-gray-800">
+                          {new Date(photoViewer.createdAt).toLocaleDateString(
+                            "en-NP",
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 border-t border-gray-200 flex gap-2">
+              <button
+                onClick={() => setPhotoViewer(null)}
+                className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 transition"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => window.open(photoViewer.photo, "_blank")}
+                className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition"
+              >
+                View Full Size
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+function SchoolStaffTab() {
+  const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [expanded, setExpanded] = useState(null);
+  const [statusForm, setStatusForm] = useState({});
+  const [saving, setSaving] = useState(null);
+  const [saveSuccess, setSaveSuccess] = useState(null);
+  const [smsSending, setSmsSending] = useState(null);
+  const [smsSuccess, setSmsSuccess] = useState(null);
+
+  const statuses = [
+    "Pending",
+    "Approved",
+    "Rejected",
+    "Printing",
+    "Ready for Collection",
+  ];
+  const statusColors = {
+    Pending: "bg-yellow-100 text-yellow-700",
+    Approved: "bg-blue-100 text-blue-700",
+    Rejected: "bg-red-100 text-red-700",
+    Printing: "bg-purple-100 text-purple-700",
+    "Ready for Collection": "bg-green-100 text-green-700",
+  };
+  const statusIcons = {
+    Pending: "⏳",
+    Approved: "✅",
+    Rejected: "❌",
+    Printing: "🖨️",
+    "Ready for Collection": "🎉",
+  };
+
+  const fetchApplications = async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      if (filterStatus) params.append("status", filterStatus);
+      if (search) params.append("search", search);
+      const res = await fetch(`${API}/api/school-staff/all?${params}`, {
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setApplications(data);
+        const forms = {};
+        data.forEach((app) => {
+          forms[app._id] = {
+            status: app.status,
+            rejectionReason: app.rejectionReason || "",
+            estimatedDate: app.estimatedDate
+              ? app.estimatedDate.split("T")[0]
+              : "",
+            adminNotes: app.adminNotes || "",
+          };
+        });
+        setStatusForm(forms);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchApplications();
+  }, [filterStatus]);
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    fetchApplications();
+  };
+  const handleFormChange = (id, field, value) =>
+    setStatusForm((prev) => ({
+      ...prev,
+      [id]: { ...prev[id], [field]: value },
+    }));
+
+  const handleSaveStatus = async (app) => {
+    const f = statusForm[app._id];
+    if (f.status === "Rejected" && !f.rejectionReason.trim()) {
+      alert("Please enter rejection reason");
+      return;
+    }
+    setSaving(app._id);
+    setSaveSuccess(null);
+    try {
+      const res = await fetch(`${API}/api/school-staff/${app._id}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          status: f.status,
+          rejectionReason: f.rejectionReason,
+          estimatedDate: f.estimatedDate,
+          adminNotes: f.adminNotes,
+        }),
+      });
+      if (res.ok) {
+        setSaveSuccess(app._id);
+        await fetchApplications();
+        setTimeout(() => setSaveSuccess(null), 2000);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSaving(null);
+    }
+  };
+
+  const handleSendSMS = async (id) => {
+    setSmsSending(id);
+    setSmsSuccess(null);
+    try {
+      const res = await fetch(`${API}/api/school-staff/${id}/send-sms`, {
+        method: "POST",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setSmsSuccess(id);
+        setTimeout(() => setSmsSuccess(null), 2000);
+      } else alert(data.message);
+    } catch {
+      alert("SMS failed");
+    } finally {
+      setSmsSending(null);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm("Delete this application?")) return;
+    try {
+      const res = await fetch(`${API}/api/school-staff/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (res.ok) {
+        setApplications((prev) => prev.filter((a) => a._id !== id));
+        setExpanded(null);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Group by school name
+  const grouped = applications.reduce((acc, app) => {
+    const key = app.schoolName || "Unknown School";
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(app);
+    return acc;
+  }, {});
+
+  // Export to Excel
+  const exportToExcel = (schoolName, apps) => {
+    const data = apps.map((app, i) => ({
+      "S.N.": i + 1,
+      "Submission ID": app.submissionId,
+      "Staff Name": app.staffName,
+      Designation: app.designation,
+      "Citizenship No": app.citizenshipNo,
+      "Contact No": app.contactNo,
+      "Photo No.": app.photo ? app.photo.split("/").pop() : "",
+      "Blood Group": app.bloodGroup || "",
+      "Permanent Address": app.permanentAddress,
+      Status: app.status,
+      Submitted: new Date(app.createdAt).toLocaleDateString(),
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Staff");
+    XLSX.writeFile(wb, `${schoolName}-staff.xlsx`);
+  };
+
+  return (
+    <div className="w-full">
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <form onSubmit={handleSearch} className="flex gap-2 flex-1">
+          <input
+            type="text"
+            placeholder="Search by name, ID, school..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-violet-400 placeholder-gray-400 shadow-sm"
+          />
+          <button
+            type="submit"
+            className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white shadow-sm"
+            style={{ background: "linear-gradient(135deg, #7c3aed, #db2777)" }}
+          >
+            Search
+          </button>
+        </form>
+        <select
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+          className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-violet-400 shadow-sm"
+        >
+          <option value="">All Statuses</option>
+          {statuses.map((s) => (
+            <option key={s} value={s}>
+              {s}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {loading ? (
+        <p className="text-gray-400 animate-pulse">Loading...</p>
+      ) : applications.length === 0 ? (
+        <div className="text-center py-20">
+          <p className="text-gray-400">No applications found</p>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {Object.entries(grouped).map(([schoolName, apps]) => (
+            <div
+              key={schoolName}
+              className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden"
+            >
+              <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-violet-50 to-pink-50 border-b border-gray-100">
+                <div>
+                  <h3 className="font-bold text-gray-900">{schoolName}</h3>
+                  <p className="text-xs text-gray-500">
+                    {apps.length} staff member{apps.length !== 1 ? "s" : ""}
+                  </p>
+                </div>
+                <button
+                  onClick={() => exportToExcel(schoolName, apps)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-green-700 bg-green-100 hover:bg-green-200 transition"
+                >
+                  📊 Export Excel
+                </button>
+              </div>
+
+              <div className="divide-y divide-gray-50">
+                {apps.map((app) => (
+                  <div key={app._id}>
+                    <div
+                      className="flex items-center gap-4 px-5 py-3 cursor-pointer hover:bg-gray-50 transition-colors"
+                      onClick={() =>
+                        setExpanded(expanded === app._id ? null : app._id)
+                      }
+                    >
+                      <img
+                        src={app.photo}
+                        alt="photo"
+                        className="w-9 h-11 object-cover rounded-lg border border-gray-100 flex-shrink-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(app.photo, "_blank");
+                        }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-gray-900 truncate">
+                          {app.staffName}
+                        </p>
+                        <p className="text-xs text-gray-400">
+                          {app.designation} • {app.submissionId}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <span
+                          className={`text-xs font-semibold px-3 py-1 rounded-full ${statusColors[app.status] || "bg-gray-100 text-gray-700"}`}
+                        >
+                          {statusIcons[app.status]} {app.status}
+                        </span>
+                        <svg
+                          className={`w-4 h-4 text-gray-400 transition-transform ${expanded === app._id ? "rotate-180" : ""}`}
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+
+                    {expanded === app._id && (
+                      <div className="border-t border-gray-100 px-5 py-4 bg-gray-50">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                          <div>
+                            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+                              Details
+                            </p>
+                            <div className="flex gap-3 mb-3">
+                              <img
+                                src={app.photo}
+                                alt="photo"
+                                className="w-16 h-20 object-cover rounded-xl border border-gray-200 cursor-pointer shadow-sm"
+                                onClick={() => window.open(app.photo, "_blank")}
+                              />
+                            </div>
+                            {[
+                              ["Submission ID", app.submissionId],
+                              ["Staff Name", app.staffName],
+                              ["Designation", app.designation],
+                              ["Citizenship No", app.citizenshipNo],
+                              ["Contact No", app.contactNo],
+                              ["Blood Group", app.bloodGroup],
+                              ["Permanent Address", app.permanentAddress],
+                              [
+                                "Submitted",
+                                new Date(app.createdAt).toLocaleString("en-NP"),
+                              ],
+                            ]
+                              .filter(([, v]) => v)
+                              .map(([label, value]) => (
+                                <div key={label} className="flex gap-2 text-sm">
+                                  <span className="text-gray-400 w-32 flex-shrink-0">
+                                    {label}:
+                                  </span>
+                                  <span className="text-gray-800 font-medium">
+                                    {value}
+                                  </span>
+                                </div>
+                              ))}
+                          </div>
+                          <div>
+                            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+                              Update Status
+                            </p>
+                            {statusForm[app._id] && (
+                              <div className="space-y-3">
+                                <select
+                                  value={statusForm[app._id].status}
+                                  onChange={(e) =>
+                                    handleFormChange(
+                                      app._id,
+                                      "status",
+                                      e.target.value,
+                                    )
+                                  }
+                                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-violet-400"
+                                >
+                                  {statuses.map((s) => (
+                                    <option key={s} value={s}>
+                                      {statusIcons[s]} {s}
+                                    </option>
+                                  ))}
+                                </select>
+                                {statusForm[app._id].status === "Rejected" && (
+                                  <textarea
+                                    value={statusForm[app._id].rejectionReason}
+                                    onChange={(e) =>
+                                      handleFormChange(
+                                        app._id,
+                                        "rejectionReason",
+                                        e.target.value,
+                                      )
+                                    }
+                                    rows={2}
+                                    placeholder="Rejection reason..."
+                                    className="w-full bg-white border border-red-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none resize-none"
+                                  />
+                                )}
+                                <input
+                                  type="date"
+                                  value={statusForm[app._id].estimatedDate}
+                                  onChange={(e) =>
+                                    handleFormChange(
+                                      app._id,
+                                      "estimatedDate",
+                                      e.target.value,
+                                    )
+                                  }
+                                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-violet-400"
+                                />
+                                <textarea
+                                  value={statusForm[app._id].adminNotes}
+                                  onChange={(e) =>
+                                    handleFormChange(
+                                      app._id,
+                                      "adminNotes",
+                                      e.target.value,
+                                    )
+                                  }
+                                  rows={2}
+                                  placeholder="Admin notes (internal)..."
+                                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none resize-none"
+                                />
+
+                                {app.statusTimeline &&
+                                  app.statusTimeline.length > 0 && (
+                                    <div className="space-y-1 max-h-24 overflow-y-auto">
+                                      {[...app.statusTimeline]
+                                        .reverse()
+                                        .map((item, i) => (
+                                          <div
+                                            key={i}
+                                            className="flex gap-2 text-xs"
+                                          >
+                                            <span>
+                                              {statusIcons[item.status] || "•"}
+                                            </span>
+                                            <span className="font-semibold text-gray-700">
+                                              {item.status}
+                                            </span>
+                                            <span className="text-gray-400">
+                                              {new Date(
+                                                item.changedAt,
+                                              ).toLocaleString("en-NP")}
+                                            </span>
+                                          </div>
+                                        ))}
+                                    </div>
+                                  )}
+
+                                <button
+                                  onClick={() => handleSaveStatus(app)}
+                                  disabled={saving === app._id}
+                                  className="w-full py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50"
+                                  style={{
+                                    background:
+                                      "linear-gradient(135deg, #7c3aed, #db2777)",
+                                  }}
+                                >
+                                  {saving === app._id
+                                    ? "Saving..."
+                                    : saveSuccess === app._id
+                                      ? "✓ Saved!"
+                                      : "Save Status"}
+                                </button>
+                                <button
+                                  onClick={() => handleSendSMS(app._id)}
+                                  disabled={smsSending === app._id}
+                                  className="w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-green-500 hover:bg-green-600 transition disabled:opacity-50"
+                                >
+                                  {smsSending === app._id
+                                    ? "Sending..."
+                                    : smsSuccess === app._id
+                                      ? "✓ SMS Sent!"
+                                      : "📱 Send SMS"}
+                                </button>
+                                <button
+                                  onClick={() => handleDelete(app._id)}
+                                  className="w-full py-2.5 rounded-xl text-sm font-semibold text-red-500 bg-red-50 hover:bg-red-100 transition"
+                                >
+                                  🗑️ Delete
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 // ─── PRODUCTS TAB ─────────────────────────────────────────────────────────────
@@ -858,8 +2412,6 @@ function ProductsTab() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
-  const [products, setProducts] = useState([]);
-  const [view, setView] = useState("upload");
   const fileRef = useRef();
 
   const categories = [
@@ -873,16 +2425,6 @@ function ProductsTab() {
     "Holder",
     "Accessories",
   ];
-
-  const fetchProducts = async () => {
-    const res = await fetch(`${API}/api/products`, { credentials: "include" });
-    const data = await res.json();
-    if (res.ok) setProducts(data.products);
-  };
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
 
   const handleFile = (fileList) => {
     const arr = Array.from(fileList);
@@ -914,7 +2456,6 @@ function ProductsTab() {
         setForm({ name: "", shortDesc: "", longDesc: "", category: "" });
         setFiles([]);
         setPreviews([]);
-        fetchProducts();
       }
     } catch (err) {
       setError(err.message);
@@ -924,142 +2465,118 @@ function ProductsTab() {
   };
 
   return (
-    <div className="w-full">
-      {view === "upload" && (
-        <div className="max-w-xl">
-          <div className="space-y-4">
-            <div
-              onClick={() => fileRef.current.click()}
-              className="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center cursor-pointer hover:border-violet-300 hover:bg-violet-50 transition-all"
-            >
-              {previews.length > 0 ? (
-                <div className="flex gap-2 flex-wrap justify-center">
-                  {previews.map((p, i) => (
-                    <img
-                      key={i}
-                      src={p}
-                      className="h-24 w-24 object-cover rounded-lg shadow"
-                    />
-                  ))}
-                  <p className="w-full text-xs text-gray-400 text-center mt-1">
-                    Click to change
-                  </p>
-                </div>
-              ) : (
-                <div>
-                  <svg
-                    className="w-10 h-10 text-gray-300 mx-auto mb-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
-                  <p className="text-gray-500 text-sm">
-                    Click to select images{" "}
-                    <span className="text-violet-500">(multiple allowed)</span>
-                  </p>
-                  <p className="text-gray-400 text-xs mt-1">JPG, PNG, JPEG</p>
-                </div>
-              )}
+    <div className="w-full max-w-xl">
+      <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-6">
+        Upload Product
+      </h2>
+      <div className="space-y-4">
+        <div
+          onClick={() => fileRef.current.click()}
+          className="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center cursor-pointer hover:border-violet-300 hover:bg-violet-50 transition-all"
+        >
+          {previews.length > 0 ? (
+            <div className="flex gap-2 flex-wrap justify-center">
+              {previews.map((p, i) => (
+                <img
+                  key={i}
+                  src={p}
+                  className="h-24 w-24 object-cover rounded-lg shadow"
+                />
+              ))}
+              <p className="w-full text-xs text-gray-400 text-center mt-1">
+                Click to change
+              </p>
             </div>
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              multiple
-              className="hidden"
-              onChange={(e) => handleFile(e.target.files)}
-            />
+          ) : (
             <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
-                Product Name
-              </label>
+              <p className="text-gray-500 text-sm">
+                Click to select images{" "}
+                <span className="text-violet-500">(multiple allowed)</span>
+              </p>
+              <p className="text-gray-400 text-xs mt-1">JPG, PNG, JPEG</p>
+            </div>
+          )}
+        </div>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          onChange={(e) => handleFile(e.target.files)}
+        />
+        {[
+          { key: "name", label: "Product Name", placeholder: "Custom T-Shirt" },
+          {
+            key: "shortDesc",
+            label: "Short Description",
+            placeholder: "One line summary...",
+          },
+          {
+            key: "longDesc",
+            label: "Long Description",
+            placeholder: "Detailed description...",
+          },
+        ].map((f) => (
+          <div key={f.key}>
+            <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
+              {f.label}
+            </label>
+            {f.key === "longDesc" ? (
+              <textarea
+                value={form[f.key]}
+                placeholder={f.placeholder}
+                onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
+                rows={3}
+                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm outline-none focus:border-violet-400 transition-colors placeholder-gray-400 shadow-sm resize-none"
+              />
+            ) : (
               <input
                 type="text"
-                value={form.name}
-                placeholder="Custom T-Shirt"
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                value={form[f.key]}
+                placeholder={f.placeholder}
+                onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
                 className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm outline-none focus:border-violet-400 transition-colors placeholder-gray-400 shadow-sm"
               />
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
-                Short Description{" "}
-                <span className="text-gray-400 normal-case">
-                  (shown at top)
-                </span>
-              </label>
-              <textarea
-                value={form.shortDesc}
-                placeholder="One line summary..."
-                onChange={(e) =>
-                  setForm({ ...form, shortDesc: e.target.value })
-                }
-                rows={2}
-                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm outline-none focus:border-violet-400 transition-colors placeholder-gray-400 shadow-sm resize-none"
-              />
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
-                Long Description{" "}
-                <span className="text-gray-400 normal-case">
-                  (shown at bottom)
-                </span>
-              </label>
-              <textarea
-                value={form.longDesc}
-                placeholder="Detailed product description..."
-                onChange={(e) => setForm({ ...form, longDesc: e.target.value })}
-                rows={4}
-                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm outline-none focus:border-violet-400 transition-colors placeholder-gray-400 shadow-sm resize-none"
-              />
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
-                Category
-              </label>
-              <select
-                value={form.category}
-                onChange={(e) => setForm({ ...form, category: e.target.value })}
-                className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm outline-none focus:border-violet-400 transition-colors shadow-sm"
-              >
-                <option value="">Select category</option>
-                {categories.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
-                <p className="text-red-600 text-xs">{error}</p>
-              </div>
             )}
-            {success && (
-              <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3">
-                <p className="text-green-600 text-xs">{success}</p>
-              </div>
-            )}
-            <button
-              onClick={handleUpload}
-              disabled={loading}
-              className="w-full py-3 rounded-xl font-semibold text-sm text-white shadow-md transition-all hover:opacity-90 active:scale-95 disabled:opacity-50"
-              style={{
-                background: "linear-gradient(135deg, #7c3aed, #db2777)",
-              }}
-            >
-              {loading ? "Uploading..." : "Upload Product"}
-            </button>
           </div>
+        ))}
+        <div>
+          <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
+            Category
+          </label>
+          <select
+            value={form.category}
+            onChange={(e) => setForm({ ...form, category: e.target.value })}
+            className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm outline-none focus:border-violet-400 transition-colors shadow-sm"
+          >
+            <option value="">Select category</option>
+            {categories.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
         </div>
-      )}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+            <p className="text-red-600 text-xs">{error}</p>
+          </div>
+        )}
+        {success && (
+          <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+            <p className="text-green-600 text-xs">{success}</p>
+          </div>
+        )}
+        <button
+          onClick={handleUpload}
+          disabled={loading}
+          className="w-full py-3 rounded-xl font-semibold text-sm text-white shadow-md transition-all hover:opacity-90 active:scale-95 disabled:opacity-50"
+          style={{ background: "linear-gradient(135deg, #7c3aed, #db2777)" }}
+        >
+          {loading ? "Uploading..." : "Upload Product"}
+        </button>
+      </div>
     </div>
   );
 }
@@ -1197,6 +2714,9 @@ function ManageTab() {
 
   return (
     <div className="w-full">
+      <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-6">
+        Manage Products
+      </h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         {products.map((product) => (
           <div
@@ -1235,7 +2755,7 @@ function ManageTab() {
 
       {editProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="relative mx-auto bg-white rounded-2xl w-full max-w-lg shadow-2xl">
+          <div className="relative mx-auto bg-white rounded-2xl w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-5 border-b border-gray-100">
               <h3 className="font-bold text-gray-900">Edit Product</h3>
               <button
@@ -1245,7 +2765,7 @@ function ManageTab() {
                 ✕
               </button>
             </div>
-            <div className="p-4 space-y-2">
+            <div className="p-4 space-y-3">
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
                   Current Images
@@ -1284,9 +2804,6 @@ function ManageTab() {
                           className="h-16 w-16 object-cover rounded-lg shadow"
                         />
                       ))}
-                      <p className="w-full text-xs text-gray-400 mt-1">
-                        Click to change
-                      </p>
                     </div>
                   ) : (
                     <p className="text-gray-400 text-sm">Click to add images</p>
@@ -1301,45 +2818,25 @@ function ManageTab() {
                   onChange={(e) => handleEditFile(e.target.files)}
                 />
               </div>
-              <div>
-                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
-                  Product Name
-                </label>
-                <input
-                  type="text"
-                  value={editForm.name}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, name: e.target.value })
-                  }
-                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm outline-none focus:border-violet-400 transition-colors shadow-sm"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
-                  Short Description
-                </label>
-                <textarea
-                  value={editForm.shortDesc}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, shortDesc: e.target.value })
-                  }
-                  rows={1}
-                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm outline-none focus:border-violet-400 transition-colors shadow-sm resize-none"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
-                  Long Description
-                </label>
-                <textarea
-                  value={editForm.longDesc}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, longDesc: e.target.value })
-                  }
-                  rows={2}
-                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm outline-none focus:border-violet-400 transition-colors shadow-sm resize-none"
-                />
-              </div>
+              {[
+                { key: "name", label: "Product Name" },
+                { key: "shortDesc", label: "Short Description" },
+                { key: "longDesc", label: "Long Description" },
+              ].map((f) => (
+                <div key={f.key}>
+                  <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
+                    {f.label}
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm[f.key]}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, [f.key]: e.target.value })
+                    }
+                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 text-sm outline-none focus:border-violet-400 transition-colors shadow-sm"
+                  />
+                </div>
+              ))}
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-2">
                   Category
@@ -1394,498 +2891,165 @@ function ManageTab() {
   );
 }
 
-// ─── ID CARD TAB ──────────────────────────────────────────────────────────────
-function IDCardTab({ onStatusChange }) {
-  const [applications, setApplications] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [filterStatus, setFilterStatus] = useState("");
-  const [expanded, setExpanded] = useState(null);
-  const [statusForm, setStatusForm] = useState({});
-  const [saving, setSaving] = useState(null);
-  const [saveSuccess, setSaveSuccess] = useState(null);
+// ─── DASHBOARD ────────────────────────────────────────────────────────────────
+function Dashboard({ onLogout }) {
+  const [tab, setTab] = useState("upload");
+  const [pendingCount, setPendingCount] = useState(0);
 
-  const statuses = [
-    "Pending",
-    "Approved",
-    "Rejected",
-    "Printing",
-    "Ready for Collection",
-  ];
-
-  const statusColors = {
-    Pending: "bg-yellow-100 text-yellow-700",
-    Approved: "bg-blue-100 text-blue-700",
-    Rejected: "bg-red-100 text-red-700",
-    Printing: "bg-purple-100 text-purple-700",
-    "Ready for Collection": "bg-green-100 text-green-700",
-  };
-
-  const statusIcons = {
-    Pending: "⏳",
-    Approved: "✅",
-    Rejected: "❌",
-    Printing: "🖨️",
-    "Ready for Collection": "🎉",
-  };
-
-  const fetchApplications = async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (filterStatus) params.append("status", filterStatus);
-      params.append("type", "office");
-      if (search) params.append("search", search);
-      const res = await fetch(`${API}/api/id-applications/all?${params}`, {
-        credentials: "include",
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setApplications(data);
-        const forms = {};
-        data.forEach((app) => {
-          forms[app._id] = {
-            status: app.status,
-            rejectionReason: app.rejectionReason || "",
-            estimatedDate: app.estimatedDate
-              ? app.estimatedDate.split("T")[0]
-              : "",
-            adminNotes: app.adminNotes || "",
-          };
-        });
-        setStatusForm(forms);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+  const refreshPendingCount = () => {
+    fetch(`${API}/api/id-applications/all?type=office&status=Pending`, {
+      credentials: "include",
+    })
+      .then((r) => r.json())
+      .then((data) => Array.isArray(data) && setPendingCount(data.length))
+      .catch(() => {});
   };
 
   useEffect(() => {
-    fetchApplications();
-  }, [filterStatus]);
+    refreshPendingCount();
+  }, []);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    fetchApplications();
-  };
+  return (
+    <div className="flex min-h-[calc(100dvh-4rem)] lg:min-h-[calc(100dvh-4rem)] bg-gray-50">
+      <Sidebar
+        tab={tab}
+        setTab={setTab}
+        onLogout={onLogout}
+        pendingCount={pendingCount}
+      />
+      <div className="flex-1 flex flex-col min-w-0">
+        <MobileTopBar tab={tab} onLogout={onLogout} setTab={setTab} />
+        <main className="flex-1 p-4 sm:p-6 md:p-8 pb-24 md:pb-8 overflow-auto">
+          {tab === "upload" && <UploadTab />}
+          {tab === "gallery" && <GalleryTab />}
+          {tab === "settings" && <SettingsTab />}
+          {tab === "products" && <ProductsTab />}
+          {tab === "manage" && <ManageTab />}
+          {tab === "idcards" && (
+            <IDCardTab onStatusChange={refreshPendingCount} />
+          )}
+          {tab === "school" && <SchoolTab />}
+          {tab === "users" && <UsersTab />}
+        </main>
+      </div>
+      <MobileBottomNav tab={tab} setTab={setTab} />
+    </div>
+  );
+}
 
-  const handleFormChange = (id, field, value) => {
-    setStatusForm((prev) => ({
-      ...prev,
-      [id]: { ...prev[id], [field]: value },
-    }));
-  };
+// ─── ROOT ─────────────────────────────────────────────────────────────────────
+export default function AdminPanel() {
+  const [authed, setAuthed] = useAuth();
 
-  const handleSaveStatus = async (app) => {
-    const f = statusForm[app._id];
-    if (f.status === "Rejected" && !f.rejectionReason.trim()) {
-      alert("Please enter rejection reason");
-      return;
-    }
-    setSaving(app._id);
-    setSaveSuccess(null);
-    try {
-      const res = await fetch(`${API}/api/id-applications/${app._id}/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          status: f.status,
-          rejectionReason: f.rejectionReason,
-          estimatedDate: f.estimatedDate,
-          adminNotes: f.adminNotes,
-        }),
-      });
-      if (res.ok) {
-        setSaveSuccess(app._id);
-        await fetchApplications();
-        onStatusChange();
-        setTimeout(() => setSaveSuccess(null), 2000);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setSaving(null);
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (!confirm("Delete this application? This cannot be undone.")) return;
-    try {
-      const res = await fetch(`${API}/api/id-applications/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
-      if (res.ok) {
-        setApplications((prev) => prev.filter((a) => a._id !== id));
-        setExpanded(null);
-        onStatusChange();
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-const handleSendSMS = async (id) => {
-  try {
-    const res = await fetch(`${API}/api/id-applications/${id}/send-sms`, {
+  const handleLogout = async () => {
+    await fetch(`${API}/api/admin/logout`, {
       method: "POST",
       credentials: "include",
     });
-    const data = await res.json();
-    if (res.ok) alert("SMS sent!");
-    else alert(data.message);
-  } catch (err) {
-    alert("SMS failed");
-  }
-};
-  const pendingCount = applications.filter(
-    (a) => a.status === "Pending",
-  ).length;
+    setAuthed(false);
+  };
+
+  if (authed === null)
+    return (
+      <div className="min-h-[calc(100dvh-4rem)] lg:min-h-[calc(100dvh-4rem)] flex items-center justify-center bg-brandBg">
+        <div className="w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+
+  if (!authed) return <LoginPage onLogin={() => setAuthed(true)} />;
+  return <Dashboard onLogout={handleLogout} />;
+}
+
+function UsersTab() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    fetch(`${API}/api/users/all`, { credentials: "include" })
+      .then((r) => r.json())
+      .then((data) => Array.isArray(data) && setUsers(data))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filtered = users.filter(
+    (u) =>
+      u.name?.toLowerCase().includes(search.toLowerCase()) ||
+      u.contactNo?.includes(search) ||
+      u.organizationName?.toLowerCase().includes(search.toLowerCase()),
+  );
 
   return (
     <div className="w-full">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-1 flex items-center gap-2">
-            ID Card Applications
-            {pendingCount > 0 && (
-              <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                {pendingCount} pending
-              </span>
-            )}
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-1">
+            Registered Users
           </h2>
-          <p className="text-gray-500 text-sm">
-            {applications.length} total applications
-          </p>
+          <p className="text-gray-500 text-sm">{users.length} total users</p>
         </div>
-      </div>
-
-      <div className="flex flex-col sm:flex-row gap-3 mb-6">
-        <form onSubmit={handleSearch} className="flex gap-2 flex-1">
-          <input
-            type="text"
-            placeholder="Search by name or submission ID..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-violet-400 transition-colors placeholder-gray-400 shadow-sm"
-          />
-          <button
-            type="submit"
-            className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white shadow-sm"
-            style={{ background: "linear-gradient(135deg, #7c3aed, #db2777)" }}
-          >
-            Search
-          </button>
-        </form>
-        <select
-          value={filterStatus}
-          onChange={(e) => setFilterStatus(e.target.value)}
-          className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-violet-400 shadow-sm"
-        >
-          <option value="">All Statuses</option>
-          {statuses.map((s) => (
-            <option key={s} value={s}>
-              {s}
-            </option>
-          ))}
-        </select>
+        <input
+          type="text"
+          placeholder="Search by name, contact, org..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-violet-400 placeholder-gray-400 w-full sm:w-64 shadow-sm"
+        />
       </div>
 
       {loading ? (
-        <p className="text-gray-400 animate-pulse">Loading applications...</p>
-      ) : applications.length === 0 ? (
+        <p className="text-gray-400 animate-pulse">Loading...</p>
+      ) : filtered.length === 0 ? (
         <div className="text-center py-20">
-          <p className="text-gray-400">No applications found</p>
+          <p className="text-gray-400">No users found</p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {applications.map((app) => (
-            <div
-              key={app._id}
-              className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden"
-            >
-              <div
-                className="flex items-center gap-4 p-4 cursor-pointer hover:bg-gray-50 transition-colors"
-                onClick={() =>
-                  setExpanded(expanded === app._id ? null : app._id)
-                }
-              >
-                <img
-                  src={app.photo}
-                  alt="photo"
-                  className="w-10 h-12 object-cover rounded-lg border border-gray-100 flex-shrink-0"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    window.open(app.photo, "_blank");
-                  }}
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-sm font-semibold text-gray-900 truncate">
-                      {app.employeeName || app.studentName}
-                    </p>
-                    <span className="text-xs text-gray-400 font-mono">
-                      {app.submissionId}
-                    </span>
-                    <span className="text-xs text-gray-400 capitalize bg-gray-100 px-2 py-0.5 rounded-full">
-                      {app.type}
-                    </span>
-                  </div>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    {app.officeName || app.schoolName} •{" "}
-                    {new Date(app.createdAt).toLocaleDateString("en-NP")}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <span
-                    className={`text-xs font-semibold px-3 py-1 rounded-full ${statusColors[app.status] || "bg-gray-100 text-gray-700"}`}
-                  >
-                    {statusIcons[app.status]} {app.status}
-                  </span>
-                  <svg
-                    className={`w-4 h-4 text-gray-400 transition-transform ${expanded === app._id ? "rotate-180" : ""}`}
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </div>
-              </div>
-
-              {expanded === app._id && (
-                <div className="border-t border-gray-100 p-4 space-y-5">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    {/* Left — Details */}
-                    <div>
-                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
-                        Application Details
-                      </p>
-                      <div className="space-y-2">
-                        <div className="flex gap-3 mb-3">
-                          <div>
-                            <p className="text-xs text-gray-400 mb-1">Photo</p>
-                            <img
-                              src={app.photo}
-                              alt="photo"
-                              className="w-16 h-20 object-cover rounded-xl border border-gray-200 cursor-pointer shadow-sm"
-                              onClick={() => window.open(app.photo, "_blank")}
-                            />
-                          </div>
-                          {app.sign && (
-                            <div>
-                              <p className="text-xs text-gray-400 mb-1">Sign</p>
-                              <img
-                                src={app.sign}
-                                alt="sign"
-                                className="w-16 h-20 object-cover rounded-xl border border-gray-200 cursor-pointer shadow-sm"
-                                onClick={() => window.open(app.sign, "_blank")}
-                              />
-                            </div>
-                          )}
-                        </div>
-                        {[
-                          ["Submission ID", app.submissionId],
-                          ["Office", app.officeName],
-                          ["Employee Name", app.employeeName],
-                          ["Name (Nepali)", app.employeeNameNepali],
-                          ["Designation", app.designation],
-                          ["Designation (Nepali)", app.designationNepali],
-                          ["Citizenship No", app.citizenshipNo],
-                          ["Contact", app.contactNo],
-                          ["Blood Group", app.bloodGroup],
-                          ["PIS No", app.pisNo],
-                          ["Permanent Address", app.permanentAddress],
-                          ["Address (Nepali)", app.permanentAddressNepali],
-                          ["Other Details", app.otherDetails],
-                          [
-                            "Submitted",
-                            new Date(app.createdAt).toLocaleString("en-NP"),
-                          ],
-                        ]
-                          .filter(([, v]) => v)
-                          .map(([label, value]) => (
-                            <div key={label} className="flex gap-2 text-sm">
-                              <span className="text-gray-400 w-36 flex-shrink-0">
-                                {label}:
-                              </span>
-                              <span className="text-gray-800 font-medium">
-                                {value}
-                              </span>
-                            </div>
-                          ))}
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 border-b border-gray-100">
+              <tr>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">
+                  Name
+                </th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">
+                  Organization
+                </th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">
+                  Contact
+                </th>
+                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">
+                  Joined
+                </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {filtered.map((user) => (
+                <tr
+                  key={user._id}
+                  className="hover:bg-gray-50 transition-colors"
+                >
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#FE6E4D] to-[#CC1267] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                        {user.name?.charAt(0).toUpperCase()}
                       </div>
+                      <span className="font-medium text-gray-900">
+                        {user.name}
+                      </span>
                     </div>
-
-                    {/* Right — Status Management */}
-                    <div>
-                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
-                        Update Status
-                      </p>
-                      {statusForm[app._id] && (
-                        <div className="space-y-3">
-                          <div>
-                            <label className="text-xs font-semibold text-gray-500 block mb-1">
-                              Status
-                            </label>
-                            <select
-                              value={statusForm[app._id].status}
-                              onChange={(e) =>
-                                handleFormChange(
-                                  app._id,
-                                  "status",
-                                  e.target.value,
-                                )
-                              }
-                              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-violet-400 transition-colors"
-                            >
-                              {statuses.map((s) => (
-                                <option key={s} value={s}>
-                                  {statusIcons[s]} {s}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-
-                          {statusForm[app._id].status === "Rejected" && (
-                            <div>
-                              <label className="text-xs font-semibold text-red-500 block mb-1">
-                                Rejection Reason *
-                              </label>
-                              <textarea
-                                value={statusForm[app._id].rejectionReason}
-                                onChange={(e) =>
-                                  handleFormChange(
-                                    app._id,
-                                    "rejectionReason",
-                                    e.target.value,
-                                  )
-                                }
-                                rows={2}
-                                placeholder="Enter reason for rejection..."
-                                className="w-full bg-white border border-red-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-red-400 transition-colors resize-none"
-                              />
-                            </div>
-                          )}
-
-                          <div>
-                            <label className="text-xs font-semibold text-gray-500 block mb-1">
-                              Estimated Collection Date
-                            </label>
-                            <input
-                              type="date"
-                              value={statusForm[app._id].estimatedDate}
-                              onChange={(e) =>
-                                handleFormChange(
-                                  app._id,
-                                  "estimatedDate",
-                                  e.target.value,
-                                )
-                              }
-                              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-violet-400 transition-colors"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="text-xs font-semibold text-gray-500 block mb-1">
-                              Admin Notes (internal only)
-                            </label>
-                            <textarea
-                              value={statusForm[app._id].adminNotes}
-                              onChange={(e) =>
-                                handleFormChange(
-                                  app._id,
-                                  "adminNotes",
-                                  e.target.value,
-                                )
-                              }
-                              rows={2}
-                              placeholder="Internal notes, not visible to customer..."
-                              className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-violet-400 transition-colors resize-none"
-                            />
-                          </div>
-
-                          {app.statusTimeline &&
-                            app.statusTimeline.length > 0 && (
-                              <div>
-                                <label className="text-xs font-semibold text-gray-500 block mb-2">
-                                  Timeline
-                                </label>
-                                <div className="space-y-1.5 max-h-32 overflow-y-auto">
-                                  {[...app.statusTimeline]
-                                    .reverse()
-                                    .map((item, i) => (
-                                      <div
-                                        key={i}
-                                        className="flex items-start gap-2 text-xs"
-                                      >
-                                        <span>
-                                          {statusIcons[item.status] || "•"}
-                                        </span>
-                                        <div>
-                                          <span className="font-semibold text-gray-700">
-                                            {item.status}
-                                          </span>
-                                          <span className="text-gray-400 ml-1">
-                                            {new Date(
-                                              item.changedAt,
-                                            ).toLocaleString("en-NP")}
-                                          </span>
-                                          {item.note && (
-                                            <p className="text-gray-500">
-                                              {item.note}
-                                            </p>
-                                          )}
-                                        </div>
-                                      </div>
-                                    ))}
-                                </div>
-                              </div>
-                            )}
-
-                          <button
-                            onClick={() => handleSaveStatus(app)}
-                            disabled={saving === app._id}
-                            className="w-full py-3 rounded-xl text-sm font-semibold text-white shadow-md transition-all hover:opacity-90 active:scale-95 disabled:opacity-50"
-                            style={{
-                              background:
-                                "linear-gradient(135deg, #7c3aed, #db2777)",
-                            }}
-                          >
-                            {saving === app._id
-                              ? "Saving..."
-                              : saveSuccess === app._id
-                                ? "✓ Saved!"
-                                : "Save Status"}
-                          </button>
-
-                          <button
-                            onClick={() => handleSendSMS(app._id)}
-                            className="w-full py-3 rounded-xl text-sm font-semibold text-white bg-green-500 hover:bg-green-600 transition"
-                          >
-                            📱 Send SMS
-                          </button>
-                          <button
-                            onClick={() => handleDelete(app._id)}
-                            className="w-full py-3 rounded-xl text-sm font-semibold text-red-500 bg-red-50 hover:bg-red-100 transition"
-                          >
-                            🗑️ Delete Application
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
+                  </td>
+                  <td className="px-4 py-3 text-gray-600">
+                    {user.organizationName || "—"}
+                  </td>
+                  <td className="px-4 py-3 text-gray-600">{user.contactNo}</td>
+                  <td className="px-4 py-3 text-gray-400 text-xs">
+                    {new Date(user.createdAt).toLocaleDateString("en-NP")}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
