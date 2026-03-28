@@ -283,13 +283,13 @@ const SubmissionCard = ({ submission }) => {
         onClick={() => setOpen(!open)}
       >
         <div className="flex items-center gap-3">
-          {submission.photo && (
+          {/* {submission.photo && (
             <img
               src={submission.photo}
               alt="photo"
               className="w-10 h-10 rounded-xl object-cover border border-gray-100 flex-shrink-0"
             />
-          )}
+          )} */}
           <div>
             <p className="font-semibold text-gray-900 text-sm">{mainName}</p>
             <div className="flex items-center gap-2 mt-0.5 flex-wrap">
@@ -369,15 +369,7 @@ const SubmissionCard = ({ submission }) => {
                 >
                   View full status →
                 </Link>
-                {submission.photo && (
-                  <button
-                    onClick={handleDownloadPhotos}
-                    disabled={downloading}
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#FE6E4D] hover:text-[#CC1267] transition disabled:opacity-50"
-                  >
-                    {downloading ? "Downloading..." : "⬇ Export"}
-                  </button>
-                )}
+            
               </div>
             </div>
           </motion.div>
@@ -602,7 +594,7 @@ const ProfilePage = () => {
             <div className="text-center py-10">
               <p className="text-gray-400 text-sm">No submissions yet.</p>
               <Link
-                to="/id-card-application"
+                to="/IdCardForm"
                 className="inline-block mt-3 text-sm font-semibold bg-gradient-to-r from-[#FE6E4D] to-[#CC1267] bg-clip-text text-transparent"
               >
                 Apply for an ID card →

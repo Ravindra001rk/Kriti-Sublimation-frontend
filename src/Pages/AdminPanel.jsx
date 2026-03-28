@@ -1314,12 +1314,15 @@ function SchoolStudentsTab() {
   const [filterStatus, setFilterStatus] = useState("");
   const [filterSchool, setFilterSchool] = useState("");
   const [expanded, setExpanded] = useState(null);
+  const [expandedSchools, setExpandedSchools] = useState({});
   const [statusForm, setStatusForm] = useState({});
+  const [bulkStatusForm, setBulkStatusForm] = useState({});
   const [saving, setSaving] = useState(null);
   const [saveSuccess, setSaveSuccess] = useState(null);
   const [smsSending, setSmsSending] = useState(null);
   const [smsSuccess, setSmsSuccess] = useState(null);
   const [photoViewer, setPhotoViewer] = useState(null);
+  const [bulkUpdating, setBulkUpdating] = useState(null);
 
   const statuses = [
     "Pending",
@@ -1461,6 +1464,115 @@ function SchoolStudentsTab() {
     }
   };
 
+  const handleBulkStatusUpdate = async (schoolName, apps) => {
+    const bulkStatus = bulkStatusForm[schoolName];
+    if (!bulkStatus) {
+      alert("Please select a status");
+      return;
+    }
+    setBulkUpdating(schoolName);
+    try {
+      let successCount = 0;
+      for (const app of apps) {
+        try {
+          const res = await fetch(
+            `${API}/api/school-applications/${app._id}/status`,
+            {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+              body: JSON.stringify({
+                status: bulkStatus,
+                rejectionReason: "",
+                estimatedDate: "",
+                adminNotes: "",
+              }),
+            },
+          );
+          if (res.ok) successCount++;
+        } catch (err) {
+          console.error(err);
+        }
+      }
+      alert(`Updated ${successCount} out of ${apps.length} applications`);
+      setBulkStatusForm((prev) => ({ ...prev, [schoolName]: "" }));
+      await fetchApplications();
+    } catch (err) {
+      console.error(err);
+      alert("Bulk update failed");
+    } finally {
+      setBulkUpdating(null);
+    }
+  };
+
+  const downloadPendingData = async (schoolName, apps) => {
+    const pendingApps = apps.filter((app) => app.status === "Pending");
+    if (pendingApps.length === 0) {
+      alert("No pending applications to download");
+      return;
+    }
+    try {
+      const zip = new JSZip();
+      const data = pendingApps.map((app, i) => {
+        const photoFileName = app.photo
+          ? `${app.submissionId}_${app.studentName.replace(/\s+/g, "_")}.jpg`
+          : "";
+        return {
+          "S.N.": i + 1,
+          "Photo No.": photoFileName,
+          "Submission ID": app.submissionId,
+          "School Name": app.schoolName || "",
+          "Student Name": app.studentName,
+          "Guardian Name": app.guardianName,
+          Class: app.classGrade || "",
+          Address: app.address,
+          "Contact No": app.contactNo,
+          "Date of Birth": app.dateOfBirth || "",
+          "Roll No": app.rollNo || "",
+          Status: app.status,
+          Submitted: new Date(app.createdAt).toLocaleDateString(),
+        };
+      });
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Pending Students");
+      const excelBlob = new Blob(
+        [XLSX.write(wb, { bookType: "xlsx", type: "array" })],
+        {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        },
+      );
+      zip.file(`${schoolName}-pending.xlsx`, excelBlob);
+      const photosFolder = zip.folder("Photos");
+      for (const app of pendingApps) {
+        if (app.photo) {
+          try {
+            const photoResponse = await fetch(app.photo);
+            if (photoResponse.ok) {
+              const photoBlob = await photoResponse.blob();
+              const fileName = `${app.submissionId}_${app.studentName.replace(/\s+/g, "_")}.jpg`;
+              photosFolder.file(fileName, photoBlob);
+            }
+          } catch (err) {
+            console.error(`Failed to fetch photo for ${app.studentName}:`, err);
+          }
+        }
+      }
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      const url = window.URL.createObjectURL(zipBlob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${schoolName}-pending.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Download failed:", err);
+      alert(`Download failed: ${err.message}`);
+    }
+  };
+
   // Group by school name
   const grouped = applications.reduce((acc, app) => {
     const key = app.schoolName || "No School (Guest)";
@@ -1589,6 +1701,55 @@ function SchoolStudentsTab() {
         </select>
       </div>
 
+      {/* Summary Stats */}
+      {!loading && applications.length > 0 && (
+        <div className="mb-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+              Total Submissions
+            </p>
+            <p className="text-2xl font-bold text-gray-900">
+              {applications.length}
+            </p>
+          </div>
+          <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+              Pending
+            </p>
+            <p className="text-2xl font-bold text-yellow-600">
+              {applications.filter((a) => a.status === "Pending").length}
+            </p>
+          </div>
+          <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+              Approved
+            </p>
+            <p className="text-2xl font-bold text-blue-600">
+              {applications.filter((a) => a.status === "Approved").length}
+            </p>
+          </div>
+          <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+              Printing
+            </p>
+            <p className="text-2xl font-bold text-purple-600">
+              {applications.filter((a) => a.status === "Printing").length}
+            </p>
+          </div>
+          <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
+            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
+              Ready for Collection
+            </p>
+            <p className="text-2xl font-bold text-green-600">
+              {
+                applications.filter((a) => a.status === "Ready for Collection")
+                  .length
+              }
+            </p>
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <p className="text-gray-400 animate-pulse">Loading...</p>
       ) : applications.length === 0 ? (
@@ -1603,248 +1764,333 @@ function SchoolStudentsTab() {
               className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden"
             >
               {/* School Header */}
-              <div className="flex items-center justify-between px-5 py-4 bg-gradient-to-r from-violet-50 to-pink-50 border-b border-gray-100">
-                <div>
-                  <h3 className="font-bold text-gray-900">{schoolName}</h3>
-                  <p className="text-xs text-gray-500">
-                    {apps.length} student{apps.length !== 1 ? "s" : ""}
-                  </p>
-                </div>
-                <button
-                  onClick={() => exportToExcel(schoolName, apps)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-green-700 bg-green-100 hover:bg-green-200 transition"
+              <div className="bg-gradient-to-r from-violet-50 to-pink-50 border-b border-gray-100">
+                {/* Main header with collapse toggle */}
+                <div
+                  className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-violet-100 transition-colors"
+                  onClick={() =>
+                    setExpandedSchools((prev) => ({
+                      ...prev,
+                      [schoolName]: !prev[schoolName],
+                    }))
+                  }
                 >
-                  📊 Export Excel
-                </button>
+                  <div className="flex items-center gap-3">
+                    <svg
+                      className={`w-5 h-5 text-gray-500 transition-transform flex-shrink-0 ${
+                        expandedSchools[schoolName] ? "rotate-180" : ""
+                      }`}
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                    <div>
+                      <h3 className="font-bold text-gray-900">{schoolName}</h3>
+                      <p className="text-xs text-gray-500">
+                        {apps.length} student{apps.length !== 1 ? "s" : ""}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bulk Actions - Only show when school is expanded */}
+                {expandedSchools[schoolName] && (
+                  <div className="px-5 py-4 border-t border-gray-200 bg-white flex flex-col sm:flex-row gap-3">
+                    <div className="flex gap-2 flex-1">
+                      <select
+                        value={bulkStatusForm[schoolName] || ""}
+                        onChange={(e) =>
+                          setBulkStatusForm((prev) => ({
+                            ...prev,
+                            [schoolName]: e.target.value,
+                          }))
+                        }
+                        className="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-violet-400"
+                      >
+                        <option value="">Select status for all...</option>
+                        {statuses
+                          .filter((s) => s !== "Rejected")
+                          .map((s) => (
+                            <option key={s} value={s}>
+                              {statusIcons[s]} {s}
+                            </option>
+                          ))}
+                      </select>
+                      <button
+                        onClick={() => handleBulkStatusUpdate(schoolName, apps)}
+                        disabled={bulkUpdating === schoolName}
+                        className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-blue-600 hover:bg-blue-700 transition disabled:opacity-50 flex-shrink-0"
+                      >
+                        {bulkUpdating === schoolName
+                          ? "Updating..."
+                          : "✓ Bulk Update"}
+                      </button>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => downloadPendingData(schoolName, apps)}
+                        className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-semibold text-blue-700 bg-blue-100 hover:bg-blue-200 transition flex-shrink-0"
+                      >
+                        ⬇️ Download Pending
+                      </button>
+                      <button
+                        onClick={() => exportToExcel(schoolName, apps)}
+                        className="flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-sm font-semibold text-green-700 bg-green-100 hover:bg-green-200 transition flex-shrink-0"
+                      >
+                        📊 Export All Data
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {/* Applications */}
-              <div className="divide-y divide-gray-50">
-                {apps.map((app) => (
-                  <div key={app._id}>
-                    <div
-                      className="flex items-center gap-4 px-5 py-3 cursor-pointer hover:bg-gray-50 transition-colors"
-                      onClick={() =>
-                        setExpanded(expanded === app._id ? null : app._id)
-                      }
-                    >
-                      <img
-                        src={app.photo}
-                        alt="photo"
-                        className="w-9 h-11 object-cover rounded-lg border border-gray-100 flex-shrink-0"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          window.open(app.photo, "_blank");
-                        }}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-900 truncate">
-                          {app.studentName}
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          {app.submissionId} •{" "}
-                          {new Date(app.createdAt).toLocaleDateString("en-NP")}
-                        </p>
+              {/* Applications - Only show when school is expanded */}
+              {expandedSchools[schoolName] && (
+                <div className="divide-y divide-gray-50">
+                  {apps.map((app) => (
+                    <div key={app._id}>
+                      <div
+                        className="flex items-center gap-4 px-5 py-3 cursor-pointer hover:bg-gray-50 transition-colors"
+                        onClick={() =>
+                          setExpanded(expanded === app._id ? null : app._id)
+                        }
+                      >
+                        <img
+                          src={app.photo}
+                          alt="photo"
+                          className="w-9 h-11 object-cover rounded-lg border border-gray-100 flex-shrink-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(app.photo, "_blank");
+                          }}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-gray-900 truncate">
+                            {app.studentName}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            {app.submissionId} •{" "}
+                            {new Date(app.createdAt).toLocaleDateString(
+                              "en-NP",
+                            )}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span
+                            className={`text-xs font-semibold px-3 py-1 rounded-full ${statusColors[app.status] || "bg-gray-100 text-gray-700"}`}
+                          >
+                            {statusIcons[app.status]} {app.status}
+                          </span>
+                          <svg
+                            className={`w-4 h-4 text-gray-400 transition-transform ${expanded === app._id ? "rotate-180" : ""}`}
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M19 9l-7 7-7-7"
+                            />
+                          </svg>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <span
-                          className={`text-xs font-semibold px-3 py-1 rounded-full ${statusColors[app.status] || "bg-gray-100 text-gray-700"}`}
-                        >
-                          {statusIcons[app.status]} {app.status}
-                        </span>
-                        <svg
-                          className={`w-4 h-4 text-gray-400 transition-transform ${expanded === app._id ? "rotate-180" : ""}`}
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 9l-7 7-7-7"
-                          />
-                        </svg>
-                      </div>
-                    </div>
 
-                    {expanded === app._id && (
-                      <div className="border-t border-gray-100 px-5 py-4 bg-gray-50">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                          {/* Details */}
-                          <div>
-                            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
-                              Details
-                            </p>
-                            <div className="flex gap-3 mb-3">
-                              <img
-                                src={app.photo}
-                                alt="photo"
-                                className="w-16 h-20 object-cover rounded-xl border border-gray-200 cursor-pointer shadow-sm hover:opacity-75 transition"
-                                onClick={() => setPhotoViewer(app)}
-                                title="Click to view full size"
-                              />
+                      {expanded === app._id && (
+                        <div className="border-t border-gray-100 px-5 py-4 bg-gray-50">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            {/* Details */}
+                            <div>
+                              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+                                Details
+                              </p>
+                              <div className="flex gap-3 mb-3">
+                                <img
+                                  src={app.photo}
+                                  alt="photo"
+                                  className="w-16 h-20 object-cover rounded-xl border border-gray-200 cursor-pointer shadow-sm hover:opacity-75 transition"
+                                  onClick={() => setPhotoViewer(app)}
+                                  title="Click to view full size"
+                                />
+                              </div>
+                              {[
+                                ["Submission ID", app.submissionId],
+                                ["Student Name", app.studentName],
+                                ["Guardian Name", app.guardianName],
+                                ["School Name", app.schoolName],
+                                ["Class/Grade", app.classGrade],
+                                ["Address", app.address],
+                                ["Contact No", app.contactNo],
+                                ["Date of Birth", app.dateOfBirth],
+                                ["Roll No", app.rollNo],
+                                [
+                                  "Submitted",
+                                  new Date(app.createdAt).toLocaleString(
+                                    "en-NP",
+                                  ),
+                                ],
+                              ]
+                                .filter(([, v]) => v)
+                                .map(([label, value]) => (
+                                  <div
+                                    key={label}
+                                    className="flex gap-2 text-sm"
+                                  >
+                                    <span className="text-gray-400 w-32 flex-shrink-0">
+                                      {label}:
+                                    </span>
+                                    <span className="text-gray-800 font-medium">
+                                      {value}
+                                    </span>
+                                  </div>
+                                ))}
                             </div>
-                            {[
-                              ["Submission ID", app.submissionId],
-                              ["Student Name", app.studentName],
-                              ["Guardian Name", app.guardianName],
-                              ["School Name", app.schoolName],
-                              ["Class/Grade", app.classGrade],
-                              ["Address", app.address],
-                              ["Contact No", app.contactNo],
-                              ["Date of Birth", app.dateOfBirth],
-                              ["Roll No", app.rollNo],
-                              [
-                                "Submitted",
-                                new Date(app.createdAt).toLocaleString("en-NP"),
-                              ],
-                            ]
-                              .filter(([, v]) => v)
-                              .map(([label, value]) => (
-                                <div key={label} className="flex gap-2 text-sm">
-                                  <span className="text-gray-400 w-32 flex-shrink-0">
-                                    {label}:
-                                  </span>
-                                  <span className="text-gray-800 font-medium">
-                                    {value}
-                                  </span>
-                                </div>
-                              ))}
-                          </div>
 
-                          {/* Status Management */}
-                          <div>
-                            <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
-                              Update Status
-                            </p>
-                            {statusForm[app._id] && (
-                              <div className="space-y-3">
-                                <select
-                                  value={statusForm[app._id].status}
-                                  onChange={(e) =>
-                                    handleFormChange(
-                                      app._id,
-                                      "status",
-                                      e.target.value,
-                                    )
-                                  }
-                                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-violet-400"
-                                >
-                                  {statuses.map((s) => (
-                                    <option key={s} value={s}>
-                                      {statusIcons[s]} {s}
-                                    </option>
-                                  ))}
-                                </select>
-                                {statusForm[app._id].status === "Rejected" && (
-                                  <textarea
-                                    value={statusForm[app._id].rejectionReason}
+                            {/* Status Management */}
+                            <div>
+                              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+                                Update Status
+                              </p>
+                              {statusForm[app._id] && (
+                                <div className="space-y-3">
+                                  <select
+                                    value={statusForm[app._id].status}
                                     onChange={(e) =>
                                       handleFormChange(
                                         app._id,
-                                        "rejectionReason",
+                                        "status",
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-violet-400"
+                                  >
+                                    {statuses.map((s) => (
+                                      <option key={s} value={s}>
+                                        {statusIcons[s]} {s}
+                                      </option>
+                                    ))}
+                                  </select>
+                                  {statusForm[app._id].status ===
+                                    "Rejected" && (
+                                    <textarea
+                                      value={
+                                        statusForm[app._id].rejectionReason
+                                      }
+                                      onChange={(e) =>
+                                        handleFormChange(
+                                          app._id,
+                                          "rejectionReason",
+                                          e.target.value,
+                                        )
+                                      }
+                                      rows={2}
+                                      placeholder="Rejection reason..."
+                                      className="w-full bg-white border border-red-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none resize-none"
+                                    />
+                                  )}
+                                  <input
+                                    type="date"
+                                    value={statusForm[app._id].estimatedDate}
+                                    onChange={(e) =>
+                                      handleFormChange(
+                                        app._id,
+                                        "estimatedDate",
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-violet-400"
+                                  />
+                                  <textarea
+                                    value={statusForm[app._id].adminNotes}
+                                    onChange={(e) =>
+                                      handleFormChange(
+                                        app._id,
+                                        "adminNotes",
                                         e.target.value,
                                       )
                                     }
                                     rows={2}
-                                    placeholder="Rejection reason..."
-                                    className="w-full bg-white border border-red-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none resize-none"
+                                    placeholder="Admin notes (internal)..."
+                                    className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none resize-none"
                                   />
-                                )}
-                                <input
-                                  type="date"
-                                  value={statusForm[app._id].estimatedDate}
-                                  onChange={(e) =>
-                                    handleFormChange(
-                                      app._id,
-                                      "estimatedDate",
-                                      e.target.value,
-                                    )
-                                  }
-                                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none focus:border-violet-400"
-                                />
-                                <textarea
-                                  value={statusForm[app._id].adminNotes}
-                                  onChange={(e) =>
-                                    handleFormChange(
-                                      app._id,
-                                      "adminNotes",
-                                      e.target.value,
-                                    )
-                                  }
-                                  rows={2}
-                                  placeholder="Admin notes (internal)..."
-                                  className="w-full bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-gray-900 text-sm outline-none resize-none"
-                                />
 
-                                {app.statusTimeline &&
-                                  app.statusTimeline.length > 0 && (
-                                    <div className="space-y-1 max-h-24 overflow-y-auto">
-                                      {[...app.statusTimeline]
-                                        .reverse()
-                                        .map((item, i) => (
-                                          <div
-                                            key={i}
-                                            className="flex gap-2 text-xs"
-                                          >
-                                            <span>
-                                              {statusIcons[item.status] || "•"}
-                                            </span>
-                                            <span className="font-semibold text-gray-700">
-                                              {item.status}
-                                            </span>
-                                            <span className="text-gray-400">
-                                              {new Date(
-                                                item.changedAt,
-                                              ).toLocaleString("en-NP")}
-                                            </span>
-                                          </div>
-                                        ))}
-                                    </div>
-                                  )}
+                                  {app.statusTimeline &&
+                                    app.statusTimeline.length > 0 && (
+                                      <div className="space-y-1 max-h-24 overflow-y-auto">
+                                        {[...app.statusTimeline]
+                                          .reverse()
+                                          .map((item, i) => (
+                                            <div
+                                              key={i}
+                                              className="flex gap-2 text-xs"
+                                            >
+                                              <span>
+                                                {statusIcons[item.status] ||
+                                                  "•"}
+                                              </span>
+                                              <span className="font-semibold text-gray-700">
+                                                {item.status}
+                                              </span>
+                                              <span className="text-gray-400">
+                                                {new Date(
+                                                  item.changedAt,
+                                                ).toLocaleString("en-NP")}
+                                              </span>
+                                            </div>
+                                          ))}
+                                      </div>
+                                    )}
 
-                                <button
-                                  onClick={() => handleSaveStatus(app)}
-                                  disabled={saving === app._id}
-                                  className="w-full py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50"
-                                  style={{
-                                    background:
-                                      "linear-gradient(135deg, #7c3aed, #db2777)",
-                                  }}
-                                >
-                                  {saving === app._id
-                                    ? "Saving..."
-                                    : saveSuccess === app._id
-                                      ? "✓ Saved!"
-                                      : "Save Status"}
-                                </button>
-                                <button
-                                  onClick={() => handleSendSMS(app._id)}
-                                  disabled={smsSending === app._id}
-                                  className="w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-green-500 hover:bg-green-600 transition disabled:opacity-50"
-                                >
-                                  {smsSending === app._id
-                                    ? "Sending..."
-                                    : smsSuccess === app._id
-                                      ? "✓ SMS Sent!"
-                                      : "📱 Send SMS"}
-                                </button>
-                                <button
-                                  onClick={() => handleDelete(app._id)}
-                                  className="w-full py-2.5 rounded-xl text-sm font-semibold text-red-500 bg-red-50 hover:bg-red-100 transition"
-                                >
-                                  🗑️ Delete
-                                </button>
-                              </div>
-                            )}
+                                  <button
+                                    onClick={() => handleSaveStatus(app)}
+                                    disabled={saving === app._id}
+                                    className="w-full py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50"
+                                    style={{
+                                      background:
+                                        "linear-gradient(135deg, #7c3aed, #db2777)",
+                                    }}
+                                  >
+                                    {saving === app._id
+                                      ? "Saving..."
+                                      : saveSuccess === app._id
+                                        ? "✓ Saved!"
+                                        : "Save Status"}
+                                  </button>
+                                  <button
+                                    onClick={() => handleSendSMS(app._id)}
+                                    disabled={smsSending === app._id}
+                                    className="w-full py-2.5 rounded-xl text-sm font-semibold text-white bg-green-500 hover:bg-green-600 transition disabled:opacity-50"
+                                  >
+                                    {smsSending === app._id
+                                      ? "Sending..."
+                                      : smsSuccess === app._id
+                                        ? "✓ SMS Sent!"
+                                        : "📱 Send SMS"}
+                                  </button>
+                                  <button
+                                    onClick={() => handleDelete(app._id)}
+                                    className="w-full py-2.5 rounded-xl text-sm font-semibold text-red-500 bg-red-50 hover:bg-red-100 transition"
+                                  >
+                                    🗑️ Delete
+                                  </button>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>

@@ -7,18 +7,30 @@ const PATH_D =
 
 // ── Scroll Path Background ──
 
-
 // ── Smart Video Component ──
-function SmartVideo({ src, className }) {
+function SmartVideo({ videoKey, className }) {
   const videoRef = useRef(null);
   const [muted, setMuted] = useState(true);
+  const [videoSrc, setVideoSrc] = useState(null);
+
+  const VIDEOS = {
+    hero2:
+      "https://res.cloudinary.com/dm32whbjq/video/upload/q_60,w_680/262ec80d-507b-4173-97ca-caa5274680fd_tohjab.mp4",
+    hero1:
+      "https://res.cloudinary.com/dm32whbjq/video/upload/q_60,w_680/af01f2e2-7828-4263-9fce-c04e9a85fb11_mmcvmv.mp4",
+    hero3:
+      "https://res.cloudinary.com/dm32whbjq/video/upload/q_60,w_680/e2674508-d8c8-4c42-a39f-e126150d2c24_gmddjv.mp4",
+  };
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
+          // Load video only when visible
+          setVideoSrc(VIDEOS[videoKey]);
           video.play().catch(() => {});
         } else {
           video.pause();
@@ -26,11 +38,11 @@ function SmartVideo({ src, className }) {
           setMuted(true);
         }
       },
-      { threshold: 0.4 }
+      { threshold: 0.4 },
     );
     observer.observe(video);
     return () => observer.disconnect();
-  }, []);
+  }, [videoKey]);
 
   const handleClick = () => {
     const video = videoRef.current;
@@ -44,7 +56,7 @@ function SmartVideo({ src, className }) {
       <video
         ref={videoRef}
         className={className}
-        src={src}
+        src={videoSrc}
         loop
         muted
         playsInline
@@ -82,14 +94,6 @@ function HeroText({ title, description }) {
 }
 
 // ── Shared Video URLs ──
-const VIDEOS = {
-  hero2:
-    "https://res.cloudinary.com/dm32whbjq/video/upload/q_60,w_680/262ec80d-507b-4173-97ca-caa5274680fd_tohjab.mp4",
-  hero1:
-    "https://res.cloudinary.com/dm32whbjq/video/upload/q_60,w_680/af01f2e2-7828-4263-9fce-c04e9a85fb11_mmcvmv.mp4",
-  hero3:
-    "https://res.cloudinary.com/dm32whbjq/video/upload/q_60,w_680/e2674508-d8c8-4c42-a39f-e126150d2c24_gmddjv.mp4",
-};
 const VIDEO_CLASS = "rounded-3xl shadow-xl w-full max-w-[380px]";
 
 // ── Main Component ──
@@ -145,7 +149,7 @@ export default function KritiHero() {
         {/* Hero 1: Video Left, Text Right */}
         <section className="relative z-10 min-h-screen mt-12 grid grid-cols-1 md:grid-cols-2 gap-16 items-center py-4">
           <div className="flex justify-center items-center">
-            <SmartVideo src={VIDEOS.hero1} className={VIDEO_CLASS} />
+            <SmartVideo videoKey="hero1" className={VIDEO_CLASS} />
           </div>
           <HeroText
             title={"Sublimation lanyards for offices and events."}
@@ -162,14 +166,14 @@ export default function KritiHero() {
             />
           </div>
           <div className="flex justify-center items-center order-1 md:order-2">
-            <SmartVideo src={VIDEOS.hero2} className={VIDEO_CLASS} />
+            <SmartVideo videoKey="hero2" className={VIDEO_CLASS} />
           </div>
         </section>
 
         {/* Hero 3: Video Left, Text Right */}
         <section className="relative z-10 min-h-screen grid grid-cols-1 md:grid-cols-2 gap-16 items-center py-14">
           <div className="flex justify-center items-center">
-            <SmartVideo src={VIDEOS.hero3} className={VIDEO_CLASS} />
+            <SmartVideo videoKey="hero3" className={VIDEO_CLASS} />
           </div>
           <HeroText
             title={"Printed keyrings for branding and promotions."}

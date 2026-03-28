@@ -165,7 +165,7 @@ export default function StackTabScroll() {
         {services.map((service, i) => (
           <div
             key={service.id}
-            className="sticky pt-6 px-4 sm:px-8 md:px-16 lg:px-32 xl:px-40"
+            className="sticky pt-22 px-4 sm:px-8 md:px-16 lg:px-32 xl:px-40"
             style={{
               top: 0,
               zIndex: services.length + i,
@@ -211,7 +211,7 @@ export default function StackTabScroll() {
 
             {/* Card */}
             <div
-              className={`overflow-hidden ${i === 0 ? "rounded-tr-2xl rounded-br-[24px] rounded-bl-[24px] rounded-tl-0" : "rounded-tl-[16px] rounded-tr-[16px] rounded-br-[24px] rounded-bl-[24px]"} shadow-[0_8px_40px_rgba(0,0,0,0.15)] min-h-[80] sm:min-h[96] md:min-h-[105] pt-[${TAB_H}] p-5`}
+              className={`overflow-hidden pt-12 ${i === 0 ? "rounded-tr-2xl rounded-br-[24px] rounded-bl-[24px] rounded-tl-0" : "rounded-tl-[16px] rounded-tr-[16px] rounded-br-[24px] rounded-bl-[24px]"} shadow-[0_8px_40px_rgba(0,0,0,0.15)] min-h-[80] sm:min-h[96] md:min-h-[105] pt-[${TAB_H}] p-5`}
               style={{ background: service.bg, color: service.text }}
             >
               {/* left side */}
