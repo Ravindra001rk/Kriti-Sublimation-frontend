@@ -34,7 +34,6 @@ const Field = ({
 // ── Empty student template ──
 const emptyStudent = () => ({
   id: Date.now() + Math.random(),
-  schoolName: "",
   studentName: "",
   guardianName: "",
   address: "",
@@ -157,7 +156,7 @@ const AuthModal = ({ onClose, onLogin, onBypass }) => {
                 value={form.organizationName}
                 onChange={handleChange}
                 required
-                placeholder="e.g. ABC Secondary School"
+                placeholder="Organization Name"
               />
               <Field
                 label="Representative Name"
@@ -270,6 +269,8 @@ const StudentCard = ({
   onChange,
   onRemove,
   forceClose,
+  user,
+  mode,
 }) => {
   const [open, setOpen] = useState(true);
 
@@ -385,13 +386,24 @@ const StudentCard = ({
                 </label>
               </div>
 
-              <Field
-                label="School Name"
-                name="schoolName"
-                value={student.schoolName}
-                onChange={handleField}
-                placeholder="Only for individual applicants"
-              />
+              {mode === "login" && user ? (
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    School Name
+                  </label>
+                  <div className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-800 text-sm font-medium flex items-center">
+                    {user.organizationName || "N/A"}
+                  </div>
+                </div>
+              ) : (
+                <Field
+                  label="School Name"
+                  name="schoolName"
+                  value={student.schoolName}
+                  onChange={handleField}
+                  placeholder="Your organization/school name"
+                />
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Field
@@ -572,7 +584,9 @@ const SchoolStudentsPage = () => {
 
       for (const student of students) {
         const fd = new FormData();
-        fd.append("schoolName", student.schoolName);
+        const schoolName =
+          mode === "login" ? user.organizationName : student.schoolName;
+        fd.append("schoolName", schoolName);
         fd.append("studentName", student.studentName);
         fd.append("guardianName", student.guardianName);
         fd.append("address", student.address);
@@ -753,6 +767,8 @@ const SchoolStudentsPage = () => {
               total={1}
               onChange={handleChange}
               onRemove={null}
+              mode="guest"
+              user={null}
             />
 
             {error && (
@@ -837,6 +853,8 @@ const SchoolStudentsPage = () => {
                   onChange={handleChange}
                   onRemove={removeStudent}
                   forceClose={student._forceClose}
+                  mode="login"
+                  user={user}
                 />
               ))}
             </AnimatePresence>

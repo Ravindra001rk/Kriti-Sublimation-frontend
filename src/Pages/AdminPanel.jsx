@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import React from "react";
 import * as XLSX from "xlsx";
+import JSZip from "jszip";
 
 const API =
   window.location.hostname === "localhost" ||
@@ -1473,26 +1474,73 @@ function SchoolStudentsTab() {
   ];
 
   // Export to Excel
-  const exportToExcel = (schoolName, apps) => {
-    const data = apps.map((app, i) => ({
-      "S.N.": i + 1,
-      "Photo No.": app.photo ? app.photo.split("/").pop() : "",
-      "Submission ID": app.submissionId,
-      "School Name": app.schoolName || "",
-      "Student Name": app.studentName,
-      "Guardian Name": app.guardianName,
-      Class: app.classGrade || "",
-      Address: app.address,
-      "Contact No": app.contactNo,
-      "Date of Birth": app.dateOfBirth || "",
-      "Roll No": app.rollNo || "",
-      Status: app.status,
-      Submitted: new Date(app.createdAt).toLocaleDateString(),
-    }));
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Students");
-    XLSX.writeFile(wb, `${schoolName}-students.xlsx`);
+  const exportToExcel = async (schoolName, apps) => {
+    try {
+      const zip = new JSZip();
+
+      // Create Excel file with data
+      const data = apps.map((app, i) => {
+        const photoFileName = app.photo
+          ? `${app.submissionId}_${app.studentName.replace(/\s+/g, "_")}.jpg`
+          : "";
+        return {
+          "S.N.": i + 1,
+          "Photo No.": photoFileName,
+          "Submission ID": app.submissionId,
+          "School Name": app.schoolName || "",
+          "Student Name": app.studentName,
+          "Guardian Name": app.guardianName,
+          Class: app.classGrade || "",
+          Address: app.address,
+          "Contact No": app.contactNo,
+          "Date of Birth": app.dateOfBirth || "",
+          "Roll No": app.rollNo || "",
+          Status: app.status,
+          Submitted: new Date(app.createdAt).toLocaleDateString(),
+        };
+      });
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Students");
+      const excelBlob = new Blob(
+        [XLSX.write(wb, { bookType: "xlsx", type: "array" })],
+        {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        },
+      );
+      zip.file(`${schoolName}-students.xlsx`, excelBlob);
+
+      // Add photos to zip
+      const photosFolder = zip.folder("Photos");
+      for (const app of apps) {
+        if (app.photo) {
+          try {
+            const photoResponse = await fetch(app.photo);
+            if (photoResponse.ok) {
+              const photoBlob = await photoResponse.blob();
+              const fileName = `${app.submissionId}_${app.studentName.replace(/\s+/g, "_")}.jpg`;
+              photosFolder.file(fileName, photoBlob);
+            }
+          } catch (err) {
+            console.error(`Failed to fetch photo for ${app.studentName}:`, err);
+          }
+        }
+      }
+
+      // Generate and download zip
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      const url = window.URL.createObjectURL(zipBlob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${schoolName}-students-export.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Export failed:", err);
+      alert(`Export failed: ${err.message}`);
+    }
   };
 
   return (
@@ -2091,24 +2139,71 @@ function SchoolStaffTab() {
   }, {});
 
   // Export to Excel
-  const exportToExcel = (schoolName, apps) => {
-    const data = apps.map((app, i) => ({
-      "S.N.": i + 1,
-      "Submission ID": app.submissionId,
-      "Staff Name": app.staffName,
-      Designation: app.designation,
-      "Citizenship No": app.citizenshipNo,
-      "Contact No": app.contactNo,
-      "Photo No.": app.photo ? app.photo.split("/").pop() : "",
-      "Blood Group": app.bloodGroup || "",
-      "Permanent Address": app.permanentAddress,
-      Status: app.status,
-      Submitted: new Date(app.createdAt).toLocaleDateString(),
-    }));
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Staff");
-    XLSX.writeFile(wb, `${schoolName}-staff.xlsx`);
+  const exportToExcel = async (schoolName, apps) => {
+    try {
+      const zip = new JSZip();
+
+      // Create Excel file with data
+      const data = apps.map((app, i) => {
+        const photoFileName = app.photo
+          ? `${app.submissionId}_${app.staffName.replace(/\s+/g, "_")}.jpg`
+          : "";
+        return {
+          "S.N.": i + 1,
+          "Submission ID": app.submissionId,
+          "Staff Name": app.staffName,
+          Designation: app.designation,
+          "Citizenship No": app.citizenshipNo,
+          "Contact No": app.contactNo,
+          "Photo No.": photoFileName,
+          "Blood Group": app.bloodGroup || "",
+          "Permanent Address": app.permanentAddress,
+          Status: app.status,
+          Submitted: new Date(app.createdAt).toLocaleDateString(),
+        };
+      });
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Staff");
+      const excelBlob = new Blob(
+        [XLSX.write(wb, { bookType: "xlsx", type: "array" })],
+        {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        },
+      );
+      zip.file(`${schoolName}-staff.xlsx`, excelBlob);
+
+      // Add photos to zip
+      const photosFolder = zip.folder("Photos");
+      for (const app of apps) {
+        if (app.photo) {
+          try {
+            const photoResponse = await fetch(app.photo);
+            if (photoResponse.ok) {
+              const photoBlob = await photoResponse.blob();
+              const fileName = `${app.submissionId}_${app.staffName.replace(/\s+/g, "_")}.jpg`;
+              photosFolder.file(fileName, photoBlob);
+            }
+          } catch (err) {
+            console.error(`Failed to fetch photo for ${app.staffName}:`, err);
+          }
+        }
+      }
+
+      // Generate and download zip
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      const url = window.URL.createObjectURL(zipBlob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${schoolName}-staff-export.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Export failed:", err);
+      alert(`Export failed: ${err.message}`);
+    }
   };
 
   return (

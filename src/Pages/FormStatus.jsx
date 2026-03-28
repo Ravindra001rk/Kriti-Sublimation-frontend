@@ -496,7 +496,7 @@ const FormStatus = () => {
             value={editForm.schoolName}
             onChange={handleEditChange}
             required
-            placeholder="e.g. ABC Secondary School"
+            placeholder="Organization Name"
           />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Field
@@ -575,7 +575,7 @@ const FormStatus = () => {
             name="schoolName"
             value={editForm.schoolName}
             onChange={handleEditChange}
-            placeholder="e.g. ABC Secondary School"
+            placeholder="Organization Name"
           />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Field

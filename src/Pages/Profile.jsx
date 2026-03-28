@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import JSZip from "jszip";
 import { useUserAuth } from "../context/UserAuthContext";
 
 // ── Status Badge ──
@@ -210,6 +211,7 @@ const LogoutModal = ({ onConfirm, onCancel }) => (
 // ── Submission Card ──
 const SubmissionCard = ({ submission }) => {
   const [open, setOpen] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   const typeLabel = {
     school: "School Student",
@@ -230,6 +232,44 @@ const SubmissionCard = ({ submission }) => {
     "—";
 
   const orgName = submission.schoolName || submission.officeName || "—";
+
+  // Download photo(s) as zip
+  const handleDownloadPhotos = async (e) => {
+    e.stopPropagation();
+    if (!submission.photo) {
+      alert("No photos available to download");
+      return;
+    }
+
+    setDownloading(true);
+    try {
+      const zip = new JSZip();
+
+      // If it's a single submission with one photo
+      const photoUrl = submission.photo;
+      const photoResponse = await fetch(photoUrl);
+      if (!photoResponse.ok) throw new Error("Failed to fetch photo");
+
+      const photoBlob = await photoResponse.blob();
+      const fileName = `${mainName.replace(/\s+/g, "_")}_${submission.submissionId}.jpg`;
+      zip.file(fileName, photoBlob);
+
+      // Generate and download zip
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      const url = window.URL.createObjectURL(zipBlob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${submission.submissionId}_photos.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      alert(`Download failed: ${err.message}`);
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -317,12 +357,23 @@ const SubmissionCard = ({ submission }) => {
               </div>
 
               {/* Check Status Link */}
-              <Link
-                to={`/status/${submission.submissionId}`}
-                className="inline-flex items-center gap-1 text-xs font-semibold bg-gradient-to-r from-[#FE6E4D] to-[#CC1267] bg-clip-text text-transparent"
-              >
-                View full status →
-              </Link>
+              <div className="flex items-center gap-2">
+                <Link
+                  to={`/status/${submission.submissionId}`}
+                  className="inline-flex items-center gap-1 text-xs font-semibold bg-gradient-to-r from-[#FE6E4D] to-[#CC1267] bg-clip-text text-transparent"
+                >
+                  View full status →
+                </Link>
+                {submission.photo && (
+                  <button
+                    onClick={handleDownloadPhotos}
+                    disabled={downloading}
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-[#FE6E4D] hover:text-[#CC1267] transition disabled:opacity-50"
+                  >
+                    {downloading ? "Downloading..." : "⬇ Export"}
+                  </button>
+                )}
+              </div>
             </div>
           </motion.div>
         )}
