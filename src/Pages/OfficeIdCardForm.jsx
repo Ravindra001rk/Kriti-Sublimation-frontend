@@ -106,19 +106,25 @@ const OfficeIdCardForm = () => {
     if (!file) return;
     setError("");
 
-    const compressed = await imageCompression(file, {
-      maxSizeMB: 0.3,
-      maxWidthOrHeight: 500,
-      useWebWorker: true,
-    });
+    try {
+      // iOS compatibility: disable useWebWorker which can cause issues on iOS
+      const compressed = await imageCompression(file, {
+        maxSizeMB: 0.3,
+        maxWidthOrHeight: 500,
+        useWebWorker: false,
+      });
 
-    const preview = URL.createObjectURL(compressed);
-    if (type === "photo") {
-      setPhoto(compressed);
-      setPhotoPreview(preview);
-    } else {
-      setSign(compressed);
-      setSignPreview(preview);
+      const preview = URL.createObjectURL(compressed);
+      if (type === "photo") {
+        setPhoto(compressed);
+        setPhotoPreview(preview);
+      } else {
+        setSign(compressed);
+        setSignPreview(preview);
+      }
+    } catch (err) {
+      console.error("Image compression error:", err);
+      setError("Failed to process image. Please try again.");
     }
   };
 
@@ -130,24 +136,53 @@ const OfficeIdCardForm = () => {
       return;
     }
     setLoading(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
     try {
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => fd.append(k, v));
       fd.append("photo", photo);
       if (sign) fd.append("sign", sign);
+
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/api/id-applications/office`,
-        { method: "POST", body: fd, credentials: "include" },
+        {
+          method: "POST",
+          body: fd,
+          credentials: "include",
+          signal: controller.signal,
+        },
       );
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        let errorMsg = "Submission failed";
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMsg = errorData.message || errorMsg;
+        } catch {
+          errorMsg = errorText || errorMsg;
+        }
+        throw new Error(errorMsg);
+      }
+
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Submission failed");
       setSubmissionId(data.submissionId);
       navigator.clipboard.writeText(data.submissionId).catch(() => {});
       setSubmitted(true);
       window.scrollTo({ top: 0 });
     } catch (err) {
-      setError(err.message);
+      console.error("Submission error:", err);
+      if (err.name === "AbortError") {
+        setError(
+          "Request timed out. Please check your connection and try again.",
+        );
+      } else {
+        setError(err.message || "Failed to submit. Please try again.");
+      }
     } finally {
+      clearTimeout(timeoutId);
       setLoading(false);
     }
   };

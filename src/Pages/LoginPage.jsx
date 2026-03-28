@@ -237,7 +237,7 @@ const LoginPage = () => {
                           schoolName: e.target.value,
                         })
                       }
-                      placeholder="e.g. ABC Secondary School"
+                      placeholder="Organization Name"
                       required
                       className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#FE6E4D] focus:ring-2 focus:ring-[#FE6E4D]/20 transition text-gray-800 bg-white"
                     />

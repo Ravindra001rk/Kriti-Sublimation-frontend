@@ -79,6 +79,9 @@ const AuthModal = ({ onClose, onLogin, onBypass }) => {
     }
 
     setLoading(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+
     const endpoint = tab === "login" ? "login" : "register";
     try {
       const res = await fetch(
@@ -93,14 +96,35 @@ const AuthModal = ({ onClose, onLogin, onBypass }) => {
             contactNo: form.contactNo,
             password: form.password,
           }),
+          signal: controller.signal,
         },
       );
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        let errorMsg = "Something went wrong";
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMsg = errorData.message || errorMsg;
+        } catch {
+          errorMsg = errorText || errorMsg;
+        }
+        throw new Error(errorMsg);
+      }
+
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Something went wrong");
       onLogin(data.user || data);
     } catch (err) {
-      setError(err.message);
+      console.error("Auth error:", err);
+      if (err.name === "AbortError") {
+        setError(
+          "Request timed out. Please check your connection and try again.",
+        );
+      } else {
+        setError(err.message || "Something went wrong");
+      }
     } finally {
+      clearTimeout(timeoutId);
       setLoading(false);
     }
   };
@@ -282,13 +306,21 @@ const StudentCard = ({
   const handleFile = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    const compressed = await imageCompression(file, {
-      maxSizeMB: 0.3,
-      maxWidthOrHeight: 500,
-      useWebWorker: true,
-    });
-    onChange(student.id, "photo", compressed);
-    onChange(student.id, "photoPreview", URL.createObjectURL(compressed));
+    try {
+      // iOS compatibility: disable useWebWorker which can cause issues on iOS
+      const compressed = await imageCompression(file, {
+        maxSizeMB: 0.3,
+        maxWidthOrHeight: 500,
+        useWebWorker: false,
+      });
+      onChange(student.id, "photo", compressed);
+      onChange(student.id, "photoPreview", URL.createObjectURL(compressed));
+    } catch (err) {
+      console.error("Image compression error:", err);
+      // Fallback: use original file if compression fails
+      onChange(student.id, "photo", file);
+      onChange(student.id, "photoPreview", URL.createObjectURL(file));
+    }
   };
 
   const handleField = (e) =>
@@ -431,6 +463,7 @@ const StudentCard = ({
                   value={student.classGrade}
                   onChange={handleField}
                   placeholder="e.g. LKG 'A', Grade 5, etc."
+                  required
                 />
                 <Field
                   label="Date of Birth"
@@ -576,6 +609,9 @@ const SchoolStudentsPage = () => {
     }
 
     setSubmitting(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout per student
+
     try {
       const endpoint =
         mode === "guest"
@@ -602,16 +638,37 @@ const SchoolStudentsPage = () => {
           method: "POST",
           body: fd,
           credentials: "include",
+          signal: controller.signal,
         });
+
+        if (!res.ok) {
+          const errorText = await res.text();
+          let errorMsg = "Submission failed";
+          try {
+            const errorData = JSON.parse(errorText);
+            errorMsg = errorData.message || errorMsg;
+          } catch {
+            errorMsg = errorText || errorMsg;
+          }
+          throw new Error(errorMsg);
+        }
+
         const data = await res.json();
-        if (!res.ok) throw new Error(data.message || "Submission failed");
         if (mode === "guest") setSubmittedId(data.submissionId || "");
       }
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
-      setError(err.message);
+      console.error("Submission error:", err);
+      if (err.name === "AbortError") {
+        setError(
+          "Request timed out. Please check your connection and try again.",
+        );
+      } else {
+        setError(err.message || "Failed to submit. Please try again.");
+      }
     } finally {
+      clearTimeout(timeoutId);
       setSubmitting(false);
     }
   };

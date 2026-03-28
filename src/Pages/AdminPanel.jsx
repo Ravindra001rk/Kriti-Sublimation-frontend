@@ -2158,6 +2158,7 @@ function SchoolStaffTab() {
           "Photo No.": photoFileName,
           "Blood Group": app.bloodGroup || "",
           "Permanent Address": app.permanentAddress,
+          "Other Details": app.otherDetails || "",
           Status: app.status,
           Submitted: new Date(app.createdAt).toLocaleDateString(),
         };
@@ -2338,6 +2339,7 @@ function SchoolStaffTab() {
                               ["Contact No", app.contactNo],
                               ["Blood Group", app.bloodGroup],
                               ["Permanent Address", app.permanentAddress],
+                              ["Other Details", app.otherDetails],
                               [
                                 "Submitted",
                                 new Date(app.createdAt).toLocaleString("en-NP"),

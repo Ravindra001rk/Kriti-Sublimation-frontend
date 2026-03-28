@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import imageCompression from "browser-image-compression";
+import { useUserAuth } from "../context/UserAuthContext";
 
 // ── Outside component to prevent re-mount on keystroke ──
 const Field = ({
@@ -12,11 +13,15 @@ const Field = ({
   required,
   type = "text",
   placeholder,
+  disabled = false,
 }) => (
   <div>
     <label className="block text-sm font-semibold text-gray-700 mb-1">
       {required && <span className="text-red-500 mr-1">*</span>}
       {label}
+      {disabled && (
+        <span className="text-gray-400 text-xs ml-1">(from profile)</span>
+      )}
     </label>
     <input
       type={type}
@@ -25,7 +30,8 @@ const Field = ({
       onChange={onChange}
       required={required}
       placeholder={placeholder}
-      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#FE6E4D] focus:ring-2 focus:ring-[#FE6E4D]/20 transition text-gray-800 bg-white"
+      disabled={disabled}
+      className={`w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#FE6E4D] focus:ring-2 focus:ring-[#FE6E4D]/20 transition text-gray-800 ${disabled ? "bg-gray-50 cursor-not-allowed opacity-75" : "bg-white"}`}
     />
   </div>
 );
@@ -63,6 +69,7 @@ const UploadBox = ({ label, required, preview, onChange, icon }) => (
 
 const SchoolStaffForm = () => {
   const navigate = useNavigate();
+  const { user } = useUserAuth();
   const [form, setForm] = useState({
     schoolName: "",
     staffName: "",
@@ -71,6 +78,7 @@ const SchoolStaffForm = () => {
     citizenshipNo: "",
     bloodGroup: "",
     permanentAddress: "",
+    otherDetails: "",
   });
   const [photo, setPhoto] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
@@ -79,6 +87,16 @@ const SchoolStaffForm = () => {
   const [submissionId, setSubmissionId] = useState("");
   const [error, setError] = useState("");
 
+  // Prefill school name if user is logged in
+  useEffect(() => {
+    if (user?.organizationName) {
+      setForm((prev) => ({
+        ...prev,
+        schoolName: user.organizationName,
+      }));
+    }
+  }, [user]);
+
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -86,14 +104,20 @@ const SchoolStaffForm = () => {
     const file = e.target.files[0];
     if (!file) return;
     setError("");
-    const compressed = await imageCompression(file, {
-      maxSizeMB: 0.3,
-      maxWidthOrHeight: 500,
-      useWebWorker: true,
-    });
-    const preview = URL.createObjectURL(compressed);
-    setPhoto(compressed);
-    setPhotoPreview(preview);
+    try {
+      // iOS compatibility: disable useWebWorker which can cause issues on iOS
+      const compressed = await imageCompression(file, {
+        maxSizeMB: 0.3,
+        maxWidthOrHeight: 500,
+        useWebWorker: false,
+      });
+      const preview = URL.createObjectURL(compressed);
+      setPhoto(compressed);
+      setPhotoPreview(preview);
+    } catch (err) {
+      console.error("Image compression error:", err);
+      setError("Failed to process image. Please try again.");
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -104,6 +128,9 @@ const SchoolStaffForm = () => {
       return;
     }
     setLoading(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
     try {
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => fd.append(k, v));
@@ -111,17 +138,42 @@ const SchoolStaffForm = () => {
 
       const res = await fetch(
         `${import.meta.env.VITE_API_URL}/api/school-staff/submit`,
-        { method: "POST", body: fd, credentials: "include" },
+        {
+          method: "POST",
+          body: fd,
+          credentials: "include",
+          signal: controller.signal,
+        },
       );
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        let errorMsg = "Submission failed";
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMsg = errorData.message || errorMsg;
+        } catch {
+          errorMsg = errorText || errorMsg;
+        }
+        throw new Error(errorMsg);
+      }
+
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Submission failed");
       setSubmissionId(data.submissionId);
       navigator.clipboard.writeText(data.submissionId).catch(() => {});
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
-      setError(err.message);
+      console.error("Submission error:", err);
+      if (err.name === "AbortError") {
+        setError(
+          "Request timed out. Please check your connection and try again.",
+        );
+      } else {
+        setError(err.message || "Failed to submit. Please try again.");
+      }
     } finally {
+      clearTimeout(timeoutId);
       setLoading(false);
     }
   };
@@ -190,6 +242,7 @@ const SchoolStaffForm = () => {
                 ["Contact No", form.contactNo],
                 ["Blood Group", form.bloodGroup],
                 ["Permanent Address", form.permanentAddress],
+                ["Other Details", form.otherDetails],
               ]
                 .filter(([, v]) => v)
                 .map(([label, value]) => (
@@ -227,6 +280,7 @@ const SchoolStaffForm = () => {
                   citizenshipNo: "",
                   bloodGroup: "",
                   permanentAddress: "",
+                  otherDetails: "",
                 });
                 setPhoto(null);
                 setPhotoPreview(null);
@@ -286,6 +340,7 @@ const SchoolStaffForm = () => {
               onChange={handleChange}
               // required
               placeholder="e.g. Organization's Name"
+              disabled={!!user?.organizationName}
             />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -313,7 +368,6 @@ const SchoolStaffForm = () => {
                 name="citizenshipNo"
                 value={form.citizenshipNo}
                 onChange={handleChange}
-                required
                 placeholder="e.g. 12-34-56-78901"
               />
               <Field
@@ -357,6 +411,14 @@ const SchoolStaffForm = () => {
                 placeholder="Address"
               />
             </div>
+
+            <Field
+              label="Other Details"
+              name="otherDetails"
+              value={form.otherDetails}
+              onChange={handleChange}
+              placeholder="Any additional information (optional)"
+            />
 
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-600 text-sm">

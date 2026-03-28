@@ -1,14 +1,101 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import aanumaatiPatra from "../assets/frontend_assets/Anumati Patra for id card.pdf";
 
 const IdCardForm = () => {
   const navigate = useNavigate();
+  const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    // Check if user has already seen the modal
+    const hasSeenModal = localStorage.getItem("idCardFormModalSeen");
+    if (!hasSeenModal) {
+      setShowModal(true);
+    }
+  }, []);
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    localStorage.setItem("idCardFormModalSeen", "true");
+  };
 
   return (
     <div className="min-h-screen bg-[#F7F5F2] poppins pt-14 pb-16 px-4">
-      {/* Header */}
+      {/* Modal Dialog */}
+      {showModal && (
+        <motion.div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          onClick={handleCloseModal}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 relative"
+            initial={{ scale: 0.95, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", damping: 20 }}
+          >
+            {/* Close Button */}
+            <button
+              onClick={handleCloseModal}
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors duration-200"
+            >
+              <svg
+                className="w-5 h-5 text-gray-600"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+
+            {/* Content */}
+            <div className="text-center">
+              <div className="text-4xl mb-4">💡</div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-3">Notice</h2>
+
+              <p className="text-gray-700 text-sm leading-relaxed mb-4">
+                If you want to fill more than one form, please create an
+                account.
+              </p>
+
+              <p className="text-gray-600 text-xs mb-6">
+                Your forms will be saved in your profile.
+              </p>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={handleCloseModal}
+                  className="flex-1 px-4 py-2.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-900 font-medium transition-colors duration-200 text-sm"
+                >
+                  Close
+                </button>
+
+                <button
+                  onClick={() => {
+                    navigate("/login");
+                    handleCloseModal();
+                  }}
+                  className="flex-1 px-4 py-2.5 rounded-lg bg-gradient-to-br from-[#FE6E4D] to-[#CC1267] hover:shadow-lg text-white font-medium transition-all duration-200 text-sm"
+                >
+                  Create Account
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Original Content */}
       <motion.div className="text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
           Online ID Card Application Form

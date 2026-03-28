@@ -7,8 +7,11 @@ export const UserAuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const token = sessionStorage.getItem("userToken");
+
     fetch(`${import.meta.env.VITE_API_URL}/api/users/check`, {
       credentials: "include",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
     })
       .then((res) => {
         if (res.ok) return res.json();
@@ -19,9 +22,13 @@ export const UserAuthProvider = ({ children }) => {
       .finally(() => setLoading(false));
   }, []);
 
-  const login = (userData) => setUser(userData);
+  const login = (userData, token) => {
+    if (token) sessionStorage.setItem("userToken", token);
+    setUser(userData);
+  };
 
   const logout = async () => {
+    sessionStorage.removeItem("userToken");
     await fetch(`${import.meta.env.VITE_API_URL}/api/users/logout`, {
       method: "POST",
       credentials: "include",

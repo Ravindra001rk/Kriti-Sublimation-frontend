@@ -4,6 +4,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import JSZip from "jszip";
 import { useUserAuth } from "../context/UserAuthContext";
 
+const authHeaders = () => {
+  const token = sessionStorage.getItem("userToken");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 // ── Status Badge ──
 const StatusBadge = ({ status }) => {
   const colors = {
@@ -53,7 +58,7 @@ const ChangePasswordModal = ({ onClose }) => {
         `${import.meta.env.VITE_API_URL}/api/users/change-password`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", ...authHeaders() },
           credentials: "include",
           body: JSON.stringify({
             currentPassword: form.currentPassword,
@@ -400,6 +405,7 @@ const ProfilePage = () => {
     if (!user) return;
     fetch(`${import.meta.env.VITE_API_URL}/api/users/getMySubmissions`, {
       credentials: "include",
+      headers: authHeaders(),
     })
       .then((res) => res.json())
       .then((data) => {
