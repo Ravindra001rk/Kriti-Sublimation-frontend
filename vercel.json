@@ -5,6 +5,10 @@
       "destination": "https://kriti-sublimation-backend.onrender.com/api/products/sitemap"
     },
     {
+      "source": "/api/:path*",
+      "destination": "https://kriti-sublimation-backend.onrender.com/api/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
